@@ -43,6 +43,22 @@ def get_co_to_h2_factor(sector):
     else:
         return co_h2_factors["Energy_ind"]
 
+def get_co_to_h2_factor_cmip6(sector):
+    if just_CO2:
+        return 0
+    if sector[0] == "5":
+        return co_h2_factors["Waste"]
+    if sector[0] == "3":
+        return co_h2_factors["Agr_transp"]
+    if sector[:3] == "1A3":
+        return co_h2_factors["Agr_transp"]
+    if sector[:4] == "1A4b":
+        return co_h2_factors["Residential"]
+    if sector[:4] == "1A4c":
+        return co_h2_factors["Agr_transp"]
+    else:
+        return co_h2_factors["Energy_ind"]
+
 
 def prepare_emis_df(comp, split_type, yr=2019):
     filename = comp + "_global_CEDS_emissions_by_" + split_type + "_2021_04_21.csv"
