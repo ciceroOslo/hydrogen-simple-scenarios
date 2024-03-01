@@ -26,43 +26,55 @@ co_h2_factors = {
     "Waste": 0.357,
 }
 just_CO2 = False
+ignore_bb = True
 
 # From Atmos. Chem. Phys., 11, 4039–4072, 2011
 # www.atmos-chem-phys.net/11/4039/2011/
 # doi:10.5194/acp-11-4039-2011
 co_g_per_kg_dry_mass = {
-    "Tropical forest": 93,
+    "Tropical Forest": 93,
     "Savanna": 63,
     "Agricultural Waste Burning": 102, # Crop residue
-    "Pasture maintenance": 135,
-    "Boreal forest": 127,
+    "Pasture Maintenance": 135,
+    "Boreal Forest": 127,
     "Temperate Forest": 89,
-    "Extratropical forest": 122,
-    "Peatland Burning": 182,
+    "Extratropical Forest": 122,
+    "Peat Burning": 182,
     "Chaparral": 67, # Californian shrublike ecosystem 
-    "Open cooking": 77,
-    "Patsari stoves": 42, # Particular stove type for wood
-    "Charcoal making": 255,
-    "Charcoal burning": 189, 
-    "Dung burning": 105,
-    "Garbage burning": 38,
+    "Open Cooking": 77,
+    "Patsari Stoves": 42, # Particular stove type for wood
+    "Charcoal Making": 255,
+    "Charcoal Burning": 189, 
+    "Dung Burning": 105,
+    "Garbage Burning": 38,
 } 
 
 h2_g_per_kg_dry_matter_burnt ={
-    "Tropical forest": 3.36,
+    "Tropical Forest": 3.36,
     "Savanna": 1.7,
     "Agricultural Waste Burning": 2.59, # Crop residue
-    "Boreal forest": 2.03, # Assumed equal to temperate
+    "Boreal Forest": 2.03, # Assumed equal to temperate
     "Temperate Forest": 2.03,
-    "Extratropical forest": 2.03,
-    "Peatland Burning": 1.2, # From Andreae according to Paulot
-    "Garbage burning": 0.091,
+    "Extratropical Forest": 2.03,
+    "Peat Burning": 1.2, # From Andreae according to Paulot
+    "Garbage Burning": 0.091,
 }
 
-def get_co_to_h2_factor_burning(sector):
+def get_co_to_h2_factor_burning_cmip6(sector):
     if just_CO2:
         return 0
-    return h2_g_per_kg_dry_matter_burnt[sector]/ co_g_per_kg_dry_mass[sector]
+    if ignore_bb:
+        return 0
+    if sector in h2_g_per_kg_dry_matter_burnt.keys():
+        sector_here = sector
+    elif sector == "Grassland Burning":
+        sector_here = "Savanna"
+    elif sector == "Forest Burning":
+        sector_here = "Extratropical Forest"
+    else:
+        print(f"Why am I here with {sector}")
+        sector_here = "Garbage Burning"
+    return h2_g_per_kg_dry_matter_burnt[sector_here]/ co_g_per_kg_dry_mass[sector_here]
 
 
 def get_co_to_h2_factor(sector):
@@ -78,24 +90,20 @@ def get_co_to_h2_factor(sector):
         return co_h2_factors["Residential"]
     if sector[:4] == "1A4c":
         return co_h2_factors["Agr_transp"]
-    else:
-        return co_h2_factors["Energy_ind"]
+    return co_h2_factors["Energy_ind"]
 
 def get_co_to_h2_factor_cmip6(sector):
     if just_CO2:
         return 0
-    if sector[0] == "5":
-        return co_h2_factors["Waste"]
-    if sector[0] == "3":
-        return co_h2_factors["Agr_transp"]
-    if sector[:3] == "1A3":
-        return co_h2_factors["Agr_transp"]
-    if sector[:4] == "1A4b":
-        return co_h2_factors["Residential"]
-    if sector[:4] == "1A4c":
-        return co_h2_factors["Agr_transp"]
-    else:
+    if "Burning" in sector:
+        return get_co_to_h2_factor_burning_cmip6(sector)
+    if sector in co_h2_factors.keys():
+        return co_h2_factors[sector]
+    if "Energy" in sector or "Industrial" in sector:
         return co_h2_factors["Energy_ind"]
+    if "Residential" in sector:
+        return co_h2_factors["Residential"]
+    return co_h2_factors["Agr_transp"]
 
 
 def prepare_emis_df(comp, split_type, yr=2019):

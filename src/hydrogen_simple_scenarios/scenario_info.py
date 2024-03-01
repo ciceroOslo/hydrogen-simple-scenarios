@@ -24,7 +24,10 @@ scen_out = {'GCAM4_SSP4-34':'ssp434',
             'IMAGE_SSP1-19':'ssp119',
             'IMAGE_SSP1-26':'ssp126',
             'MESSAGE-GLOBIOM_SSP2-45':'ssp245',
-            'REMIND-MAGPIE_SSP5-Baseline':'ssp585'}
+            'REMIND-MAGPIE_SSP5-Baseline':'ssp585',
+            'REMIND-MAGPIE_SSP5-34-OS':'ssp534-over',
+            "AIM/CGE_SSP3-Baseline": 'ssp370',
+            }
 
 scen_out_2 = {'SSP4-34':'ssp434',
             'SSP4-60':'ssp460',
@@ -32,5 +35,8 @@ scen_out_2 = {'SSP4-34':'ssp434',
             'SSP1-26':'ssp126',
             'SSP2-45':'ssp245',
             'SSP3-70 (Baseline)':'ssp370',
-            'SSP5-Baseline':'ssp585'}
+            'SSP5-85 (Baseline)':'ssp585',
+            'SSP5-34-OS': 'ssp534-over'
+            }
 scens_reverse = {v: k for k, v in scen_out_2.items()}
+scen_reverse_model = {v: k for k, v in scen_out.items()}
