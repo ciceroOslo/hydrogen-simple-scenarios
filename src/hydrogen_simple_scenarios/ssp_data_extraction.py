@@ -21,15 +21,9 @@ def get_data_for_component_sector_region_ssp(file, scen, comp, sector = "SUM", r
             scen_q = scens_reverse[scen]
         model = scen_reverse_model[scen].split("_")[0]
     else:
-        scen_q = scen    
-    print(scen_q)
-    print(region)
-    print(model)
+        scen_q = scen
     cut_data = tot_data.query(f"SCENARIO == '{scen_q}' and REGION == '{region}' and MODEL == '{model}'")
-    print(cut_data.head())
-    print(sector_string)
     cut_data = cut_data.query(f"VARIABLE =='{sector_string}'")
-    print(cut_data.head())
     return cut_data
 
 def get_sector_string(comp, sector = "SUM", filetype="SSP"):
@@ -44,7 +38,9 @@ def get_sector_string(comp, sector = "SUM", filetype="SSP"):
     if filetype == "RCMIP":
         if sector in co_ssp_sectors_AFOLU:
             return f"{opening}{comp}|MAGICC AFOLU|{sector}"
-        return f"{opening}{comp}|MAGICC Fossil and Industrial{sector}"
+        return f"{opening}{comp}|MAGICC Fossil and Industrial|{sector}"
+    if sector not in co_ssp_sectors: 
+        return f"{sector}|{comp}"
     return f"{opening}{comp}|{sector}"
 
 def get_ts_component_sector_region_ssp(file, scen, comp, sector = "SUM", region = "World", model = "empty", filetype="SSP"):
@@ -60,7 +56,10 @@ def get_ts_component_sector_region_ssp(file, scen, comp, sector = "SUM", region 
             return np.zeros(read_data.shape[1]-meta_len)
         return read_data.iloc[0, meta_len:].to_numpy(dtype=float)
     if sector != "SUM":
-        return get_data_for_component_sector_region_ssp(file, scen, "CO", sector = sector, region=region, model=model, filetype=filetype).iloc[0, 5:].to_numpy(dtype=float) * get_co_to_h2_factor_cmip6(sector)
+        read_data = get_data_for_component_sector_region_ssp(file, scen, "CO", sector = sector, region=region, model=model, filetype=filetype)
+        if read_data.shape[0] == 0:
+            return np.zeros(read_data.shape[1]-meta_len)
+        return read_data.iloc[0, meta_len:].to_numpy(dtype=float) * get_co_to_h2_factor_cmip6(sector)
     timeseries = None
     for sector in co_ssp_sectors:
         co_df = get_data_for_component_sector_region_ssp(file, scen, "CO", sector = sector, region=region, model=model, filetype=filetype) 

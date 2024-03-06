@@ -74,10 +74,12 @@ data_path_iam = "/mnt/c/Users/masan/Downloads/Input_for_scenarios/SSP_IAM_V2_201
 def make_hydrogen_energy_plot(): 
 
     fig, axs = plt.subplots(nrows=1,ncols=3,figsize=(22,8),sharey=False)
-    years = ssp_data_extraction.get_years(data_path)
+    years = ssp_data_extraction.get_years(data_path_iam)
     print(years)
     for values in ssp_data_extraction.get_unique_scenarios_and_models(data_path_iam):
         data_energy, data_mass = ssp_data_extraction.get_ts_hydrogen_energy_and_mass(data_path_iam, values[1], model=values[0])
+        print(data_energy)
+        print(data_mass)
         axs[0].plot(years, data_energy, color='lightgray')
         axs[1].plot(years, data_mass, color='lightgray')
 
@@ -85,6 +87,7 @@ def make_hydrogen_energy_plot():
         data_energy, data_mass = ssp_data_extraction.get_ts_hydrogen_energy_and_mass(data_path_iam, scen)
         if not np.any(data_energy):
             continue
+
         axs[0].plot(years, data_energy, color = colour, label = scenario_info.scens_reverse[scen])
         axs[1].plot(years, data_mass, color = colour, label = scenario_info.scens_reverse[scen])
         axs[2].fill_between(years, data_mass*0.01, data_mass*0.1, color = colour, alpha = 0.2, label = scenario_info.scens_reverse[scen])
@@ -107,9 +110,10 @@ def make_hydrogen_energy_plot():
     axs[2].set_title('1-10% leakage rate')
 
     plt.suptitle('Hydrogen Energy in SSP database',fontsize=25)
-    plt.savefig("hydrogen_energy_projectsions")
+    plt.savefig("hydrogen_energy_projections.png")
     #plt.tight_layout()
 
-##cenarios = ["ssp119", "ssp434", "ssp585"]
+scenarios = ["ssp119", "ssp434", "ssp585"]
+plot_co_emissions_and_scaled_hydrogen()
+make_nox_co_ratio_and_ch4_plot(scenarios)
 make_hydrogen_energy_plot()
-#make_nox_co_ratio_and_ch4_plot(scenarios)

@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+
 import sys
 
 filepath = "/div/pdo/emissions/CEDS0521/TOTALS/"
@@ -23,10 +24,10 @@ co_h2_factors = {
     "Agr_transp": 0.0357,
     "Energy_ind": 0.0143,
     "Residential": 0.0217,
-    "Waste": 0.357,
+    "Waste": 0.005,
 }
 just_CO2 = False
-ignore_bb = True
+ignore_bb = False
 
 # From Atmos. Chem. Phys., 11, 4039–4072, 2011
 # www.atmos-chem-phys.net/11/4039/2011/
