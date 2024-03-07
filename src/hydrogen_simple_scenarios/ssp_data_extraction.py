@@ -3,7 +3,7 @@ import numpy as np
 import sys
 
 from .scenario_info import scens_reverse, scen_reverse_model
-from .get_emissions_functions import get_co_to_h2_factor_cmip6
+from .get_emissions_functions import COToHydrogenEmissionsConverter
 
 co_ssp_sectors_burning = ["Forest Burning", "Grassland Burning",  "Peat Burning"]
 co_ssp_sectors_AFOLU = co_ssp_sectors_burning +["Agricultural Waste Burning", "Agriculture"]
@@ -15,7 +15,7 @@ def get_data_for_component_sector_region_ssp(file, scen, comp, sector = "SUM", r
     tot_data.columns = map(str.upper, tot_data.columns)
     sector_string = get_sector_string(comp, sector, filetype)
     if scen in scen_reverse_model:
-        if "Energy" in sector:
+        if sector.endswith("Energy"):
             scen_q = scen_reverse_model[scen].split("_")[1]
         else:
             scen_q = scens_reverse[scen]
@@ -44,6 +44,7 @@ def get_sector_string(comp, sector = "SUM", filetype="SSP"):
     return f"{opening}{comp}|{sector}"
 
 def get_ts_component_sector_region_ssp(file, scen, comp, sector = "SUM", region = "World", model = "empty", filetype="SSP"):
+    converter = COToHydrogenEmissionsConverter()
     if filetype == "SSP":
         meta_len = 5
     elif filetype == "RCMIP":
@@ -59,16 +60,16 @@ def get_ts_component_sector_region_ssp(file, scen, comp, sector = "SUM", region 
         read_data = get_data_for_component_sector_region_ssp(file, scen, "CO", sector = sector, region=region, model=model, filetype=filetype)
         if read_data.shape[0] == 0:
             return np.zeros(read_data.shape[1]-meta_len)
-        return read_data.iloc[0, meta_len:].to_numpy(dtype=float) * get_co_to_h2_factor_cmip6(sector)
+        return read_data.iloc[0, meta_len:].to_numpy(dtype=float) * converter.get_co_to_h2_factor_cmip6(sector)
     timeseries = None
     for sector in co_ssp_sectors:
         co_df = get_data_for_component_sector_region_ssp(file, scen, "CO", sector = sector, region=region, model=model, filetype=filetype) 
         if co_df.shape[0] == 0:
             continue
         if timeseries is None:
-            timeseries = co_df.iloc[0, meta_len:].to_numpy(dtype=float)*get_co_to_h2_factor_cmip6(sector)
+            timeseries = co_df.iloc[0, meta_len:].to_numpy(dtype=float)*converter.get_co_to_h2_factor_cmip6(sector)
         else:
-            timeseries = timeseries + co_df.iloc[0, meta_len:].to_numpy(dtype=float)*get_co_to_h2_factor_cmip6(sector)
+            timeseries = timeseries + co_df.iloc[0, meta_len:].to_numpy(dtype=float)*converter.get_co_to_h2_factor_cmip6(sector)
     return timeseries
 
 def get_ts_hydrogen_energy_and_mass(file, scen, region="World", model="empty"):

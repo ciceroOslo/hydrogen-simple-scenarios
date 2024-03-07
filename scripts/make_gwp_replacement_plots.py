@@ -1,9 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import sys
+import sys, os
 
-import get_emissions_functions, timeseries_functions
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "../", "src"))
+
+from hydrogen_simple_scenarios import get_emissions_functions, timeseries_functions
 
 sectors = {
     "1A2a_Ind-Comb-Iron-steel": 1,

@@ -10,4 +10,3 @@ def test_get_benefit_loss_df():
     assert isinstance(benefit_loss, pd.DataFrame)
     assert benefit_loss.shape == (4,3)
     assert np.all(benefit_loss.values <= 0.0)
-    assert False

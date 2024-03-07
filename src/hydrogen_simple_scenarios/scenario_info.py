@@ -67,7 +67,7 @@ prod_methods = {
 # Carbon brief source lists 90 kg H2
 # https://www.carboncommentary.com/blog/2020/11/4/how-much-hydrogen-will-be-needed-to-replace-coal-in-making-steel
 h2_repl_need_total_steel = 1.8e9 * 5e-5
-
+# TODO: Add natural gas h2_repl_need_total_natural_gas = 
 sector_info ={
     "steel": [steel_sectors, h2_repl_need_total_steel]
 }

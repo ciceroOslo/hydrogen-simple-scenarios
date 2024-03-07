@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 
-from .get_emissions_functions import add_leakage, add_prod_emissions, GWP_dict, just_CO2
+from .get_emissions_functions import add_leakage, add_prod_emissions, GWP_dict
 
 
 def make_linear_replacement_timeseries(start_year=2024, end_year=2050, target_rep=0.5):
@@ -39,12 +39,12 @@ def add_prod_emissions_ts(df_repl_ts_leak, h2_repl_need, emis_per_unit_h2, years
     return df_repl_ts_leak
 
 
-def get_hydrogen_used(ts, years, leak_rate, h2_repl_need):
+def get_hydrogen_used(ts, leak_rate, h2_repl_need):
     per_year_h2 = ts * h2_repl_need * (1 + leak_rate)
     return per_year_h2.sum()
 
 
-def calc_GWP(df_repl_ts, years):
+def calc_GWP(df_repl_ts, years, just_CO2 = False):
     sum_GWP = 0
     for year in years:
         for comp, factor in GWP_dict.items():
