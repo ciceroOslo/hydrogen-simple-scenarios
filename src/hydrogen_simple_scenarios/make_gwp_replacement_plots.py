@@ -139,13 +139,7 @@ width = 0.25
 alphas = [0.8, 0.7, 0.6]
 
 hyd_per_mit_carbon_dict = {}
-
-for name_prod, prod_method in prod_methods.items():
-    fig, axs = plt.subplots(3, 2)
-    fig.suptitle(f"{name_prod} Steel")
-
-    hydrogen_per_mitigated_carbon = pd.DataFrame(
-        index=[
+scen_index=[
             "Replace now no_leak",
             "Replace now leak_1p",
             "Replace now leak_10p",
@@ -155,12 +149,17 @@ for name_prod, prod_method in prod_methods.items():
             "Delay to 2040 no leak",
             "Delay to 2040 leak 1p",
             "Delay to 2040 leak 10p",
-        ],
-        columns=timeseries_2040.keys(),
-    )
+        ]
+
+for name_prod, prod_method in prod_methods.items():
+    fig, axs = plt.subplots(3, 2)
+    fig.suptitle(f"{name_prod} Steel")
+    print(f"Timeseries_2040.keys {timeseries_2040.keys()}")
+
+    hydrogen_per_mitigated_carbon = np.zeros((len(scen_index), len(timeseries_2040)))
 
     for row_num, timeseries_del in enumerate(all_ts):
-        for scen, values in timeseries_del.items():
+        for scen_i, (scen, values) in enumerate(timeseries_del.items()):
             ts = values[0]
             col = values[1]
             # print(len(years))
@@ -180,9 +179,7 @@ for name_prod, prod_method in prod_methods.items():
                 )
                 GWP = timeseries_functions.calc_GWP(replaced_emis, years)
                 print(f"GWP: {GWP} for leak rate {lr} in exp")
-                hydrogen_per_mitigated_carbon.iloc[row_num * 3 + multiplier].loc[
-                    scen
-                ] = GWP / timeseries_functions.get_hydrogen_used(
+                hydrogen_per_mitigated_carbon[row_num * 3 + multiplier, scen_i] = GWP / timeseries_functions.get_hydrogen_used(
                     ts, years, lr, h2_repl_need
                 )
                 offset = width * multiplier
@@ -203,10 +200,11 @@ for name_prod, prod_method in prod_methods.items():
                     alpha=alphas[multiplier],
                 )
                 multiplier += 1
-        axs[row_num, 0].set_ylim([0, 3.5e7])
+        
+        axs[row_num, 0].set_ylim([0, 5.5e7])
         axs[row_num, 0].set_ylabel("kt CO2 equiv")
         axs[row_num, 0].set_title("Mitigated CO2")
-        axs[row_num, 1].set_ylim([0, 0.06])
+        axs[row_num, 1].set_ylim([0, 0.1])
         axs[row_num, 1].set_ylabel("K avoided")
         axs[row_num, 1].set_title("Mitigated warming")
     # axs[row_num,0].legend()
@@ -215,6 +213,11 @@ for name_prod, prod_method in prod_methods.items():
     # axs[1, 0].set_title("Delay action to 2030")
     # axs[2, 0].set_title("Delay action to 2040")
 
+    hydrogen_per_mitigated_carbon_df = pd.DataFrame( 
+        hydrogen_per_mitigated_carbon,
+        index = scen_index,
+        columns=timeseries_2040.keys(),
+    )
     axs[0, 0].set_xticks([])
     axs[1, 0].set_xticks([])
 
@@ -228,7 +231,7 @@ for name_prod, prod_method in prod_methods.items():
     plt.savefig(f"{name_prod}_steel_replacement_simple_scenarios_w_temp_CO2_CH4.png")
     print(hydrogen_per_mitigated_carbon)
     plt.clf()
-    hyd_per_mit_carbon_dict[name_prod] = hydrogen_per_mitigated_carbon.copy()
+    hyd_per_mit_carbon_dict[name_prod] = hydrogen_per_mitigated_carbon_df.copy()
 plt.clf()
 
 fig, axs = plt.subplots(2)
@@ -274,7 +277,7 @@ for method in prod_methods:
 axs[0].set_title("Mitigated carbon per unit of hydrogen employed")
 axs[0].set_ylabel("kT CO2 equiv / kT H2")
 axs[0].set_xticks(x + width * (x * 3 + 1), prod_methods, rotation=45)
-axs[1].set_title("Percent penaltiy for H2 leakage of 0, 0.01 and 0.1")
+axs[1].set_title("Percent penalty for H2 leakage of 0, 0.01 and 0.1")
 axs[1].set_ylabel("%")
 axs[1].set_xticks(x + width * (x * 3 + 1), prod_methods, rotation=45)
 plt.tight_layout()

@@ -32,8 +32,4 @@ def test_get_data_for_component_sector_region_ssp():
 def test_get_unique_scenarios_and_models():
     unique_full = ssp_data_extraction.get_unique_scenarios_and_models(data_path_iam)
     unique_shorter = ssp_data_extraction.get_unique_scenarios_and_models(data_path)
-    print(unique_full.shape)
-    print(unique_full)
-    print(unique_shorter.shape)
     assert unique_full.size > unique_shorter.size
-    assert False

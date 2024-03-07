@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 import sys
 
-filepath = "/div/pdo/emissions/CEDS0521/TOTALS/"
+#filepath = "/div/pdo/emissions/CEDS0521/TOTALS/"
+filepath = "/mnt/c/Users/masan/Downloads/Input_for_scenarios/"
 
 # GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4":27.9,  "NMVOC": 10.9, "NOx": -(42+56)/2}
 GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4": 27.9, "NMVOC": 10.9, "NOx": 0}

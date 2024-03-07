@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 
-import get_emissions_functions
+from .get_emissions_functions import add_leakage, add_prod_emissions, GWP_dict, just_CO2
 
 
 def make_linear_replacement_timeseries(start_year=2024, end_year=2050, target_rep=0.5):
@@ -23,7 +23,7 @@ def add_leakage_ts(df_repl, ts, years, leak_rate, h2_repl_need):
     df_repl_ts_leak = make_emission_ts(df_repl, ts, years)
     if leak_rate > 0:
         for i, year in enumerate(years):
-            df_repl_ts_leak.loc[year] = get_emissions_functions.add_leakage(
+            df_repl_ts_leak.loc[year] = add_leakage(
                 df_repl_ts_leak.loc[year], ts[i] * h2_repl_need, leak_rate
             ).values.flatten()
     # print(df_repl_ts_leak)
@@ -32,7 +32,7 @@ def add_leakage_ts(df_repl, ts, years, leak_rate, h2_repl_need):
 
 def add_prod_emissions_ts(df_repl_ts_leak, h2_repl_need, emis_per_unit_h2, years, ts):
     for i, year in enumerate(years):
-        df_repl_ts_leak.loc[year] = get_emissions_functions.add_prod_emissions(
+        df_repl_ts_leak.loc[year] = add_prod_emissions(
             df_repl_ts_leak.loc[year], ts[i] * h2_repl_need, emis_per_unit_h2
         ).values.flatten()
         print(df_repl_ts_leak.loc[year])
@@ -47,10 +47,10 @@ def get_hydrogen_used(ts, years, leak_rate, h2_repl_need):
 def calc_GWP(df_repl_ts, years):
     sum_GWP = 0
     for year in years:
-        for comp, factor in get_emissions_functions.GWP_dict.items():
+        for comp, factor in GWP_dict.items():
             # print(df_repl_ts.columns)
             # print(df_repl_ts[comp])
-            if get_emissions_functions.just_CO2 and comp not in ["H2", "CO2"]:
+            if just_CO2 and comp not in ["H2", "CO2"]:
                 continue
             sum_GWP = sum_GWP + df_repl_ts[comp][year] * factor
         # sys.exit(4)

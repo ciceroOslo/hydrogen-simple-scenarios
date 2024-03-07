@@ -40,3 +40,37 @@ scen_out_2 = {'SSP4-34':'ssp434',
             }
 scens_reverse = {v: k for k, v in scen_out_2.items()}
 scen_reverse_model = {v: k for k, v in scen_out.items()}
+
+
+steel_sectors = {
+    "1A2a_Ind-Comb-Iron-steel": 1,
+    "2A2_Lime-production": 0.4,
+    "2C_Metal-production": 0.75,
+}
+natural_gas = {
+    "natural_gas": 1
+}
+# sector = '1A3di_International-shipping'
+blue_opt = {"CO2": 1}  # kT CO2 per tonne Hydrogen
+blue_pes = {"CO2": 3}
+green = {"CO2": 0}
+
+prod_methods = {
+    "Blue_optimistic": blue_opt,
+    "Blue_pessimistic": blue_pes,
+    "Green": green,
+}
+
+# 1.8e tonnes steel per year
+# 1 ton steel requires 50-60 kg H2
+# (Bhaskar et al., 2020; Fischedick et al., 2014; Material Economics, 2019; Rechberger et al., 2020; Vogl et al., 2018) from steel report
+# Carbon brief source lists 90 kg H2
+# https://www.carboncommentary.com/blog/2020/11/4/how-much-hydrogen-will-be-needed-to-replace-coal-in-making-steel
+h2_repl_need_total_steel = 1.8e9 * 5e-5
+
+sector_info ={
+    "steel": [steel_sectors, h2_repl_need_total_steel]
+}
+
+leak_rates = [0, 0.01, 0.05, 0.1]
+
