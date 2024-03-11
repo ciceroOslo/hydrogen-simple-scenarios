@@ -47,7 +47,7 @@ steel_sectors = {
     "2A2_Lime-production": 0.4,
     "2C_Metal-production": 0.75,
 }
-natural_gas = {
+natural_gas_sectors = {
     "natural_gas": 1
 }
 # sector = '1A3di_International-shipping'
@@ -61,15 +61,30 @@ prod_methods = {
     "Green": green,
 }
 
-# 1.8e tonnes steel per year
+# 1.8e9 tonnes steel per year
 # 1 ton steel requires 50-60 kg H2
 # (Bhaskar et al., 2020; Fischedick et al., 2014; Material Economics, 2019; Rechberger et al., 2020; Vogl et al., 2018) from steel report
 # Carbon brief source lists 90 kg H2
 # https://www.carboncommentary.com/blog/2020/11/4/how-much-hydrogen-will-be-needed-to-replace-coal-in-making-steel
 h2_repl_need_total_steel = 1.8e9 * 5e-5
 # TODO: Add natural gas h2_repl_need_total_natural_gas = 
+
+    
+#Convert to hydrogen mass: 
+# EJ -> KWh : 277777777777.78 
+# kWH-> kg H2 : 1 kg H2 = 33.3 kWh (Warwick)
+# kg H2 -> Tg H2: 1e-9
+h2_energy_to_mass_conv_factor = 277777777777.78/33.3*1e-9
+
+# Natural gas energy demand 2019
+# 3320 Mtoe according to Global_Energy_Review_2019 from iea
+# 1 Mtoe = 0.041868 EJ
+natural_gas_energy_demand_2019 = 0.041868*3320e3
+
+
 sector_info ={
-    "steel": [steel_sectors, h2_repl_need_total_steel]
+    "steel": [steel_sectors, h2_repl_need_total_steel, "sector"],
+    "natural_gas": [natural_gas_sectors, natural_gas_energy_demand_2019*h2_energy_to_mass_conv_factor, "fuel"]
 }
 
 leak_rates = [0, 0.01, 0.05, 0.1]

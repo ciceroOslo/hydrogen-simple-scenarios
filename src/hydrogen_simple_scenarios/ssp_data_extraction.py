@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import sys
 
-from .scenario_info import scens_reverse, scen_reverse_model
+from .scenario_info import scens_reverse, scen_reverse_model, h2_energy_to_mass_conv_factor
 from .get_emissions_functions import COToHydrogenEmissionsConverter
 
 co_ssp_sectors_burning = ["Forest Burning", "Grassland Burning",  "Peat Burning"]
@@ -74,13 +74,7 @@ def get_ts_component_sector_region_ssp(file, scen, comp, sector = "SUM", region 
 
 def get_ts_hydrogen_energy_and_mass(file, scen, region="World", model="empty"):
     energy_ts = get_ts_component_sector_region_ssp(file, scen, comp="Hydrogen", sector="Secondary Energy", region=region, model = model)
-    
-    #Convert to hydrogen mass: 
-    # EJ -> KWh : 277777777777.78 
-    # kWH-> kg H2 : 1 kg H2 = 33.3 kWh (Warwick)
-    # kg H2 -> Tg H2: 1e-9
-    conv_factor = 277777777777.78/33.3*1e-9
-    mass_ts = energy_ts*conv_factor
+    mass_ts = energy_ts*h2_energy_to_mass_conv_factor
     return energy_ts, mass_ts
 
 def get_years(file):

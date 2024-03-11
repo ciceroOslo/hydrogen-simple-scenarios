@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys, os
 
-
 sys.path.append(os.path.join(os.path.dirname(__file__), "../", "src"))
 
 from hydrogen_simple_scenarios import get_emissions_functions, timeseries_functions
