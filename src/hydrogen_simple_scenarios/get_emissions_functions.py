@@ -206,11 +206,11 @@ def get_sector_column_total(sectors, type_split="sector"):
                 df_repl = df_repl + get_sector_column_total(sector, type_split=type_split)
         return df_repl
     if isinstance(sectors, dict):
-        for i, (sector, factor) in enumerate(sectors.items()):
+        for i, (sector, info) in enumerate(sectors.items()):
             if i == 0:
-                df_repl = get_sector_column_total(sector, type_split=type_split) * factor
+                df_repl = get_sector_column_total(sector, type_split=info[1]) * info[0]
             else:
-                df_repl = df_repl + get_sector_column_total(sector, type_split=type_split) * factor
+                df_repl = df_repl + get_sector_column_total(sector, type_split=info[1]) * info[0]
         return df_repl
 
 

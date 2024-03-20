@@ -44,7 +44,7 @@ def test_get_sector_column():
     assert np.allclose(sector_column3.values, sector_column2.values)
     tot_sector = np.zeros_like(sector_column3.values)
     for key, value in scenario_info.steel_sectors.items():
-        tot_sector = tot_sector + get_emissions_functions.get_sector_column_total([key]).values*value
+        tot_sector = tot_sector + get_emissions_functions.get_sector_column_total([key]).values*value[0]
     
     
     assert np.allclose(tot_sector, get_emissions_functions.get_sector_column_total(scenario_info.steel_sectors).values)

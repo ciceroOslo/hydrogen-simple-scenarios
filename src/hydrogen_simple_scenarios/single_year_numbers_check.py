@@ -9,7 +9,7 @@ from .timeseries_functions import calc_GWP
 from .scenario_info import prod_methods, leak_rates, sector_info
 
 
-def get_gwp_values_df(sector):
+def get_gwp_values_df(sector, just_CO2 = False):
     """
     Get DataFrame of gwp values for total sector replacement
 
@@ -26,7 +26,7 @@ def get_gwp_values_df(sector):
     -------
         pd.Dataframe
     """
-    df_repl = get_sector_column_total(sector_info[sector][0], type_split=sector_info[sector][2])
+    df_repl = get_sector_column_total(sector_info[sector][0], just_CO2)
     gwp_values = np.zeros((len(prod_methods), len(leak_rates)))
     for i, (prod, prod_emis) in enumerate(prod_methods.items()):
         df_prod_now = df_repl.copy()
@@ -42,7 +42,7 @@ def get_gwp_values_df(sector):
     gwp_df = pd.DataFrame(gwp_values, index=prod_methods.keys(), columns=leak_rates)
     return gwp_df
 
-def get_gwp_values_per_hydrogen_used(sector):
+def get_gwp_values_per_hydrogen_used(sector, just_CO2 = False):
     """
     Get DataFrame of gwp replacement per Tg H2 employed
 
@@ -60,7 +60,7 @@ def get_gwp_values_per_hydrogen_used(sector):
     -------
         pd.Dataframe
     """
-    gwp_values = get_gwp_values_df(sector).values
+    gwp_values = get_gwp_values_df(sector, just_CO2=just_CO2).values
     gwp_per_h2 = np.zeros_like(gwp_values)
     h2_need = sector_info[sector][1]
     for j, leak in enumerate(leak_rates):
@@ -69,7 +69,7 @@ def get_gwp_values_per_hydrogen_used(sector):
     gwp_per_h2_df = pd.DataFrame(gwp_per_h2, index=prod_methods.keys(), columns=leak_rates)
     return gwp_per_h2_df
 
-def get_benefit_loss_df(sector):
+def get_benefit_loss_df(sector, just_CO2=False):
     """
     Get DataFrame of percentage benefit loss due to production or leak emissions
 
@@ -89,7 +89,7 @@ def get_benefit_loss_df(sector):
     -------
         pd.Dataframe
     """
-    gwp_values = get_gwp_values_df(sector).values
+    gwp_values = get_gwp_values_df(sector, just_CO2=just_CO2).values
     benefit_loss = np.array(
         [
             (gwp_values[:, i] - gwp_values[:, 0]) / gwp_values[:, 0] * 100

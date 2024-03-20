@@ -22,7 +22,7 @@ empty_to_fill_in = pd.DataFrame(0, index = indices, columns = scenario_info.sect
 print(empty_to_fill_in)
 for i, sector in enumerate(scenario_info.sector_info):
     print(sector)
-    df_repl = get_emissions_functions.get_sector_column_total(scenario_info.sector_info[sector][0], type_split=scenario_info.sector_info[sector][2])
+    df_repl = get_emissions_functions.get_sector_column_total(scenario_info.sector_info[sector][0])
     print(df_repl)
     empty_to_fill_in.loc[:"NOx", sector] = df_repl.loc['Total',:].values/1e3
     empty_to_fill_in.loc["H2 total need", sector] = scenario_info.sector_info[sector][1]/1e3

@@ -1,4 +1,5 @@
 
+import sys
 scens = ["119", "126", "245", "370", "434", "460", "534-over", "585"]
 scens_colours = {'ssp119':"#1e9684", 
                  'ssp126':"#1d3354",
@@ -43,24 +44,25 @@ scen_reverse_model = {v: k for k, v in scen_out.items()}
 
 
 steel_sectors = {
-    "1A2a_Ind-Comb-Iron-steel": 1,
-    "2A2_Lime-production": 0.4,
-    "2C_Metal-production": 0.75,
+    "1A2a_Ind-Comb-Iron-steel": [1,"sector"],
+    "2A2_Lime-production": [0.4, "sector"],
+    "2C_Metal-production": [0.75, "sector"]
 }
 natural_gas_sectors = {
-    "natural_gas": 1
+    "natural_gas": [1, "fuel"],
+    "1B2b_Fugitive-NG-distr": [1, "sector"],
+    "1B2b_Fugitive-NG-prod": [1, "sector"],
 }
-total_sector = ["biomass", "brown_coal", "coal_coke", "diesel_oil", "hard_coal", "heavy_oil", "light_oil", "process"]
-# sector = '1A3di_International-shipping'
-blue_opt = {"CO2": 1}  # kT CO2 per ton Hydrogen
-blue_pes = {"CO2": 3.8}
-green = {"CO2": 0}
-bhccs = {"CO2":-10.}
-
-prod_methods = {
-    "Blue_optimistic": blue_opt,
-    "Blue_pessimistic": blue_pes,
-    "Green": green,
+total_sector = {
+    "biomass": [1, "fuel"], 
+    "brown_coal": [1, "fuel"],
+    "coal_coke": [1, "fuel"],
+    "diesel_oil": [1, "fuel"],
+    "hard_coal": [1, "fuel"],
+    "heavy_oil": [1, "fuel"],
+    "light_oil": [1, "fuel"],
+    "natural_gas": [1, "fuel"],
+    "process": [1, "fuel"]
 }
 #    "BHCCS": bhccs
 #}
@@ -97,16 +99,33 @@ total_energy_demand_2019 = 0.041868*14400
 industrial_use_2019 = 69e3
 
 sector_info ={
-    "steel": [steel_sectors, h2_repl_need_total_steel, "sector"],
-    "natural_gas": [natural_gas_sectors, natural_gas_energy_demand_2019*h2_energy_to_mass_conv_factor*1e3, "fuel"],
-    "current_hydrogen": ["native_hydrogen_mid", industrial_use_2019, "sector"],
-    "total": [total_sector, total_energy_demand_2019*h2_energy_to_mass_conv_factor*1e3, "fuel"]
+    "steel": [steel_sectors, h2_repl_need_total_steel],
+    "natural_gas": [natural_gas_sectors, natural_gas_energy_demand_2019*h2_energy_to_mass_conv_factor*1e3],
+    "current_hydrogen": ["native_hydrogen_mid", industrial_use_2019],
+    "total": [total_sector, total_energy_demand_2019*h2_energy_to_mass_conv_factor*1e3]
 }
 
 leak_rates = [0, 0.01, 0.05, 0.1]
 
-dnv_scenario_timeline = np.array([[2020, 2025, 2030, 2035, 2040, 2045, 2050],
-                                  [0., 0.01, 0.05, 0.22, 0.36, 0.58, 0.65], 
-                                  [0., 0.02, 0.17, 0.49, 0.70, 1.19, 1.69],
-                                  ])
+# TODO: Figure out how to add "1B2b_Fugitive-NG-prod" sector to 
+# the blue production sectors...
+# 2019 CH4 in "1B2b_Fugitive-NG-prod" (only emission from this sector)
+CH4_blue = 21.55/(natural_gas_energy_demand_2019*h2_energy_to_mass_conv_factor)
+blue_opt = {"CO2": 1, "CH4": CH4_blue}  # kT CO2 per ton Hydrogen
+blue_pes = {"CO2": 3.8, "CH4": CH4_blue}
+green = {"CO2": 0}
+bhccs = {"CO2":-10.}
+
+prod_methods = {
+    "Blue_optimistic": blue_opt,
+    "Blue_pessimistic": blue_pes,
+    "Green": green,
+}
+
+dnv_scenario_timeline = [
+                            [2020, 2025, 2030, 2035, 2040, 2045, 2050],
+                            [0., 0.01, 0.06, 0.18, 0.37, 0.57, 0.65], 
+                            [0., 0.02, 0.16, 0.47, 0.77, 1.15, 1.72],
+                        ] 
+
 

@@ -34,6 +34,7 @@ title_dict = {
 fig, axs = plt.subplots(ncols=len(scenario_info.sector_info), nrows=1, sharey=True, figsize=(16,8))
 fig.suptitle("Per kg H2 CO2 equiv replacement benefit", fontsize=size)
 for i, sector in enumerate(scenario_info.sector_info):
+    print(sector)
     gwp_benefits_per_h2 = single_year_numbers_check.get_gwp_values_per_hydrogen_used(sector)
     gwp_benefits_per_h2.plot.bar(ax = axs[i], alpha=0.8)
     axs[i].tick_params(axis='x', labelrotation=45)
