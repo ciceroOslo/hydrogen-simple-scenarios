@@ -1,5 +1,5 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+import numpy as np
 
 import sys
 
@@ -7,9 +7,12 @@ import sys
 filepath = "/mnt/c/Users/masan/Downloads/Input_for_scenarios/"
 
 # GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4":27.9,  "NMVOC": 10.9, "NOx": -(42+56)/2}
-GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4": 27.9, "NMVOC": 10.9, "NOx": 0}
+GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4": 27.9, "NMVOC": 10.5, "NOx": 0}
 # H2: Sand et al 2023, CO, NMVOC and NOx global summer/winter average from Aamaas 2016, CH4 AR6
 complist = GWP_dict.keys()
+
+
+from .scenario_info import industrial_use_2019
 
 # AGWP_CO2 =
 
@@ -117,8 +120,6 @@ def prepare_emis_df(comp, split_type, yr=2019):
         data_emis = pd.read_csv(
             filepath + filename, delimiter=",", index_col=0, header=0, skiprows=0
         ).T
-    # print(data_emis)
-    # print(data_emis.index)
     data_emis = data_emis.drop(["em", "units"])
 
     data_emis.index.name = "Year"
@@ -128,12 +129,23 @@ def prepare_emis_df(comp, split_type, yr=2019):
     data_emis.index = index.astype(int)
     data_emis_yr = data_emis.loc[2019]
     data_emis_yr.name = comp
-    # print(data_emis_yr)
     return data_emis_yr
+
+def get_native_hydrogen_sector_column(sector, df_replacements):
+    per_hydrogen_co2 = [17.21, 10.09]
+    if sector == "native_hydrogen_high":
+        df_replacements.at[sector, "CO2"] = industrial_use_2019*per_hydrogen_co2[0]
+    elif sector == "native_hydrogen_low":
+        df_replacements.at[sector, "CO2"] = industrial_use_2019*per_hydrogen_co2[1]
+    else:
+        df_replacements.at[sector, "CO2"] = industrial_use_2019*np.mean(per_hydrogen_co2)
+    return df_replacements
 
 
 def get_sector_column(sector, type_split="sector", just_CO2 = False, ignore_bb = False):
     df_replacements = pd.DataFrame(0.0, columns=complist, index=[sector])
+    if sector.startswith("native_hydrogen"):
+        return get_native_hydrogen_sector_column(sector, df_replacements)
     converter = COToHydrogenEmissionsConverter(just_CO2 = just_CO2, ignore_bb = ignore_bb)
     for comp in complist:
         if comp == "H2":
@@ -162,14 +174,33 @@ def get_sector_column(sector, type_split="sector", just_CO2 = False, ignore_bb =
 
 
 def get_sector_column_total(sectors, type_split="sector"):
+    """
+    Get a total sector column
+
+    Parameters
+    ----------
+        sectors : str, list or dict
+            The sectors to be summed. If str a total single sector is
+            assumed. If a list, a list of sector names from which
+            all sectors have the whole sector added is assumed.
+            If a dict, the dict should have sector names as keys, 
+            and ratio of sector to be considered as values
+        type_split : str
+            What type of split of sectors the sector or sectors
+            are to be taken from (i.e. sector or fuel)
+    
+    Returns
+    -------
+        pd.DataFrame
+            Dataframe contining emissions per emissions species
+            for the sector in the year 2019
+    """
     if isinstance(sectors, str):
         df_repl = get_sector_column(sectors, type_split=type_split)
         df_repl.rename({sectors: "Total"}, inplace=True)
         return df_repl
     if isinstance(sectors, list):
         df_repl = get_sector_column_total(sectors[0], type_split=type_split)
-        print(df_repl)
-        # sys.exit(4)
         for i, sector in enumerate(sectors):
             if i > 0:
                 df_repl = df_repl + get_sector_column_total(sector, type_split=type_split)
@@ -184,18 +215,47 @@ def get_sector_column_total(sectors, type_split="sector"):
 
 
 def add_leakage(df_repl, h2_total, leak_rate):
+    """
+    Add H2 leakage to sector 
+
+    Parameters
+    ----------
+    df_repl : pd.DataFrame
+        Dataframe of emissions to add leaks to
+    h2_total : float
+        Total Hydrogen needed to repl
+    leak_rate : float
+        Leak rate of hydrogen, should be in range 0-1
+    
+    Returns
+    -------
+        pd.DataFrame
+            Dataframe of emissions mitigated minus H2 emissions
+    """
     df_with_leak = df_repl.copy()
-    print(df_repl)
     df_with_leak["H2"] = df_with_leak["H2"] - leak_rate * h2_total
-    print(df_with_leak)
-    print(df_with_leak.values.flatten())
-    if leak_rate > 0:
-        print(h2_total)
-        print(h2_total * leak_rate)
     return df_with_leak
 
 
 def add_prod_emissions(df_repl, h2_total, emis_per_unit_h2):
+    """
+    Add H2 leakage to sector 
+
+    Parameters
+    ----------
+    df_repl : pd.DataFrame
+        Dataframe of emissions to add leaks to
+    h2_total : float
+        Total Hydrogen needed to repl
+    emis_per_unit_h2 : dict
+        Emissions of various species in the production of h2
+        per unit of H2 used/produced
+    
+    Returns
+    -------
+        pd.DataFrame
+            Dataframe of emissions mitigated minus H2 production emissions  
+    """
     df_with_prod = df_repl.copy()
     for coemittant, emis in emis_per_unit_h2.items():
         df_with_prod[coemittant] = df_with_prod[coemittant] - h2_total * emis

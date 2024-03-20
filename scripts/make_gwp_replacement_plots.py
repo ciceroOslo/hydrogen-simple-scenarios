@@ -128,12 +128,6 @@ all_ts = [timeseries, timeseries_2030, timeseries_2040]
 # https://www.carboncommentary.com/blog/2020/11/4/how-much-hydrogen-will-be-needed-to-replace-coal-in-making-steel
 h2_repl_need = 1.8e9 * 5e-5  # tonne* 50kg per tonne
 
-# 9.2e18 needed to power international shipping per year
-# iea: https://www.iea.org/energy-system/transport/international-shipping
-# Per 120e6 J per kg hydrogen
-# https://www.carboncommentary.com/blog/2020/11/4/how-much-hydrogen-will-be-needed-to-replace-coal-in-making-steel
-# h2_repl_need = 9.2e18 / 120.e6 #tonne* 90kg per tonne
-
 leak_rates = [0, 0.01, 0.1]
 
 x = np.arange(len(timeseries.keys()))

@@ -29,15 +29,13 @@ def get_gwp_values_df(sector):
     df_repl = get_sector_column_total(sector_info[sector][0], type_split=sector_info[sector][2])
     gwp_values = np.zeros((len(prod_methods), len(leak_rates)))
     for i, (prod, prod_emis) in enumerate(prod_methods.items()):
-        print(prod)
         df_prod_now = df_repl.copy()
         df_prod_now = add_prod_emissions(
             df_prod_now, sector_info[sector][1], prod_emis
         )
         for j, leak in enumerate(leak_rates):
-            print(leak)
             df_with_leak = add_leakage(
-                df_prod_now, leak, sector_info[sector][1] * (1 + leak)
+                df_prod_now, sector_info[sector][1] * (1 + leak), leak
             )
 
             gwp_values[i, j] = calc_GWP(df_with_leak, [0])

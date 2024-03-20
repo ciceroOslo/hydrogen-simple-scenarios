@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-size=20
+size=30
 params = {'legend.fontsize': 'large',
           'axes.labelsize': size,
           'axes.titlesize': size,
@@ -46,33 +46,41 @@ def plot_co_emissions_and_scaled_hydrogen():
     plt.clf()
 
 datapath_simpleh2 = os.path.join(os.path.dirname("__file__"), "..", "..", "simpleH2", "input")
-def make_nox_co_ratio_and_ch4_plot(scenarios):
-    fig, axs = plt.subplots(nrows=1,ncols=3,squeeze=True,figsize=(27,10),sharey=False)
+def make_nox_co_ratio_and_ch4_plot(scenarios, title= "methane_and_nox_co_scenarios.png", include_nmvoc=True):
+    ncols = 2
+    if include_nmvoc:
+        ncols = ncols+1
+    fig, axs = plt.subplots(nrows=1,ncols=ncols,squeeze=True,figsize=(27/3*ncols,10),sharey=False)
     for scen, colour in scenario_info.scens_colours.items():
         if scen not in scenarios:
             continue
+        scenlabel = scen.upper()# scenario_info.scens_reverse[scen]
         data_co = pd.read_csv(os.path.join(datapath_simpleh2, f"co_emis_noburn_{scen}.csv"))
         data_nox = pd.read_csv(os.path.join(datapath_simpleh2, f"nox_emis_noburn_{scen}.csv"))
         data_ch4 = pd.read_csv(os.path.join(datapath_simpleh2, f"ch4_conc_{scen}.csv"))
-        data_nmvoc = pd.read_csv(os.path.join(datapath_simpleh2, f"voc_emis_{scen}.csv"))
-        axs[0].plot(data_ch4["Years"].to_numpy(), data_ch4["Emis"].to_numpy(), color=colour, label = scenario_info.scens_reverse[scen])
-        axs[1].plot(data_co["Years"].to_numpy(), data_nox["Emis"].to_numpy()/data_co["Emis"].to_numpy(), color=colour, label = scenario_info.scens_reverse[scen])
-        axs[2].plot(data_nmvoc["Years"].to_numpy(), data_nmvoc["Emis"].to_numpy(), color=colour, label = scenario_info.scens_reverse[scen])
+        
+        axs[0].plot(data_ch4["Years"].to_numpy(), data_ch4["Emis"].to_numpy(), color=colour, label = scenlabel)
+        axs[1].plot(data_co["Years"].to_numpy(), data_nox["Emis"].to_numpy()/data_co["Emis"].to_numpy(), color=colour, label = scenlabel)
+
+        if include_nmvoc:
+            data_nmvoc = pd.read_csv(os.path.join(datapath_simpleh2, f"voc_emis_{scen}.csv"))
+            axs[2].plot(data_nmvoc["Years"].to_numpy(), data_nmvoc["Emis"].to_numpy(), color=colour, label = scenlabel)
     
     for i,ax in enumerate(axs):
         ax.set_xlabel('Years')
         ax.set_xlim(left=1970, right=2050)
         #ax.set_ylim(bottom=0)
-        ax.legend(fontsize=20)
+        ax.legend(fontsize=size*0.75)
         #ax.xaxis.set_major_locator(loc)
-        axs[i].set_title(f"{chr(i+97)})", fontsize=20, loc='left')
+        axs[i].set_title(f"{chr(i+97)})", fontsize=size*0.75, loc='left')
     axs[0].set_ylabel("Methane concentration [ppb]")
     axs[1].set_ylabel("NOx/CO")
-    axs[2].set_ylabel("NMVOC emissions [Tg NMVOC/yr]")  
     axs[0].set_title('Methane concentration', fontweight="bold")
     axs[1].set_title('NOx/CO emissions', fontweight="bold")
-    axs[2].set_title('NMVOC emissions', fontweight="bold")
-    plt.savefig("methane_and_nox_co_scenarios.png")
+    if include_nmvoc:
+        axs[2].set_title('NMVOC emissions', fontweight="bold")
+        axs[2].set_ylabel("NMVOC emissions [Tg NMVOC/yr]")  
+    plt.savefig(title)
 
 data_path_iam = "/mnt/c/Users/masan/Downloads/Input_for_scenarios/SSP_IAM_V2_201811.csv"
 def make_hydrogen_energy_plot(): 
@@ -80,6 +88,7 @@ def make_hydrogen_energy_plot():
     fig, axs = plt.subplots(nrows=1,ncols=3,figsize=(22,8),sharey=False)
     years = ssp_data_extraction.get_years(data_path_iam)
     print(years)
+    #sys.exit(4)
     for values in ssp_data_extraction.get_unique_scenarios_and_models(data_path_iam):
         data_energy, data_mass = ssp_data_extraction.get_ts_hydrogen_energy_and_mass(data_path_iam, values[1], model=values[0])
         print(data_energy)
@@ -105,6 +114,8 @@ def make_hydrogen_energy_plot():
     for i,ax in enumerate(axs):
         ax.set_xlabel('Years')
         ax.set_ylim(bottom=0)
+        print(ax.get_xlim())
+        ax.set_xlim(xmin = 2.0, xmax=7.0)
         ax.legend(fontsize=20)
         ax.xaxis.set_major_locator(loc)
         axs[i].set_title(f"{chr(i+97)})", fontsize=20, loc='left')
@@ -117,7 +128,8 @@ def make_hydrogen_energy_plot():
     plt.savefig("hydrogen_energy_projections.png")
     #plt.tight_layout()
 
-scenarios = scen_list = ['ssp119', 'ssp126', 'ssp245', 'ssp370','ssp434','ssp460', 'ssp534-over', 'ssp585']
-plot_co_emissions_and_scaled_hydrogen()
-make_nox_co_ratio_and_ch4_plot(scenarios)
-make_hydrogen_energy_plot()
+#scenarios = ['ssp119', 'ssp126', 'ssp245', 'ssp370','ssp434','ssp460', 'ssp534-over', 'ssp585']
+scenarios = ['ssp119', 'ssp434', 'ssp585']
+#plot_co_emissions_and_scaled_hydrogen()
+make_nox_co_ratio_and_ch4_plot(scenarios, title= "methane_nox_co_ratio_for_ragnhild_wnmvoc.png", include_nmvoc=True)
+#make_hydrogen_energy_plot()

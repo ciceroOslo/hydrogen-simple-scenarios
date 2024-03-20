@@ -50,16 +50,20 @@ steel_sectors = {
 natural_gas_sectors = {
     "natural_gas": 1
 }
+total_sector = ["biomass", "brown_coal", "coal_coke", "diesel_oil", "hard_coal", "heavy_oil", "light_oil", "process"]
 # sector = '1A3di_International-shipping'
-blue_opt = {"CO2": 1}  # kT CO2 per tonne Hydrogen
-blue_pes = {"CO2": 3}
+blue_opt = {"CO2": 1}  # kT CO2 per ton Hydrogen
+blue_pes = {"CO2": 3.8}
 green = {"CO2": 0}
+bhccs = {"CO2":-10.}
 
 prod_methods = {
     "Blue_optimistic": blue_opt,
     "Blue_pessimistic": blue_pes,
     "Green": green,
 }
+#    "BHCCS": bhccs
+#}
 
 # 1.8e9 tonnes steel per year
 # 1 ton steel requires 50-60 kg H2
@@ -67,6 +71,7 @@ prod_methods = {
 # Carbon brief source lists 90 kg H2
 # https://www.carboncommentary.com/blog/2020/11/4/how-much-hydrogen-will-be-needed-to-replace-coal-in-making-steel
 h2_repl_need_total_steel = 1.8e9 * 5e-5
+# 50 kg = 5e-5 kT (CEDS emissions are in kT)
 # TODO: Add natural gas h2_repl_need_total_natural_gas = 
 
     
@@ -79,13 +84,29 @@ h2_energy_to_mass_conv_factor = 277777777777.78/33.3*1e-9
 # Natural gas energy demand 2019
 # 3320 Mtoe according to Global_Energy_Review_2019 from iea
 # 1 Mtoe = 0.041868 EJ
-natural_gas_energy_demand_2019 = 0.041868*3320e3
+natural_gas_energy_demand_2019 = 0.041868*3320
 
+#Wikipedia https://en.wikipedia.org/wiki/World_energy_supply_and_consumption
+# Number seems to have come from
+# https://yearbook.enerdata.net/total-energy/world-consumption-statistics.html
+# 1 Mtoe = 0.041868 EJ
+total_energy_demand_2019 = 0.041868*14400
+# https://www.statista.com/statistics/1199339/global-hydrogen-production-and-consumption-by-sector/
+# This is from gas reformation and not as chemical process by-product.
+# 69 MT = 69 Tg # CEDS emissions is in kT
+industrial_use_2019 = 69e3
 
 sector_info ={
     "steel": [steel_sectors, h2_repl_need_total_steel, "sector"],
-    "natural_gas": [natural_gas_sectors, natural_gas_energy_demand_2019*h2_energy_to_mass_conv_factor, "fuel"]
+    "natural_gas": [natural_gas_sectors, natural_gas_energy_demand_2019*h2_energy_to_mass_conv_factor*1e3, "fuel"],
+    "current_hydrogen": ["native_hydrogen_mid", industrial_use_2019, "sector"],
+    "total": [total_sector, total_energy_demand_2019*h2_energy_to_mass_conv_factor*1e3, "fuel"]
 }
 
 leak_rates = [0, 0.01, 0.05, 0.1]
+
+dnv_scenario_timeline = np.array([[2020, 2025, 2030, 2035, 2040, 2045, 2050],
+                                  [0., 0.01, 0.05, 0.22, 0.36, 0.58, 0.65], 
+                                  [0., 0.02, 0.17, 0.49, 0.70, 1.19, 1.69],
+                                  ])
 
