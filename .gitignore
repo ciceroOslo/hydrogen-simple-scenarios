@@ -7,6 +7,7 @@ __pycache__/
 *~
 *#
 *.png
+*.csv
 
 # C extensions
 *.so

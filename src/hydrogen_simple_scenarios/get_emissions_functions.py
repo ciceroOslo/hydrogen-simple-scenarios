@@ -173,7 +173,7 @@ def get_sector_column(sector, type_split="sector", just_CO2 = False, ignore_bb =
     return df_replacements
 
 
-def get_sector_column_total(sectors, type_split="sector"):
+def get_sector_column_total(sectors, type_split="sector", just_CO2 = False):
     """
     Get a total sector column
 
@@ -196,21 +196,21 @@ def get_sector_column_total(sectors, type_split="sector"):
             for the sector in the year 2019
     """
     if isinstance(sectors, str):
-        df_repl = get_sector_column(sectors, type_split=type_split)
+        df_repl = get_sector_column(sectors, type_split=type_split, just_CO2=just_CO2)
         df_repl.rename({sectors: "Total"}, inplace=True)
         return df_repl
     if isinstance(sectors, list):
-        df_repl = get_sector_column_total(sectors[0], type_split=type_split)
+        df_repl = get_sector_column_total(sectors[0], type_split=type_split, just_CO2=just_CO2)
         for i, sector in enumerate(sectors):
             if i > 0:
-                df_repl = df_repl + get_sector_column_total(sector, type_split=type_split)
+                df_repl = df_repl + get_sector_column_total(sector, type_split=type_split, just_CO2=just_CO2)
         return df_repl
     if isinstance(sectors, dict):
         for i, (sector, info) in enumerate(sectors.items()):
             if i == 0:
-                df_repl = get_sector_column_total(sector, type_split=info[1]) * info[0]
+                df_repl = get_sector_column_total(sector, type_split=info[1], just_CO2=just_CO2) * info[0]
             else:
-                df_repl = df_repl + get_sector_column_total(sector, type_split=info[1]) * info[0]
+                df_repl = df_repl + get_sector_column_total(sector, type_split=info[1], just_CO2=just_CO2) * info[0]
         return df_repl
 
 

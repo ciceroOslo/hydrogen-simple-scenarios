@@ -118,14 +118,14 @@ bhccs = {"CO2":-10.}
 
 prod_methods = {
     "Blue_optimistic": blue_opt,
-    "Blue_pessimistic": blue_pes,
+    "Blue_compliance": blue_pes,
     "Green": green,
 }
 
 dnv_scenario_timeline = [
                             [2020, 2025, 2030, 2035, 2040, 2045, 2050],
-                            [0., 0.01, 0.06, 0.18, 0.37, 0.57, 0.65], 
-                            [0., 0.02, 0.16, 0.47, 0.77, 1.15, 1.72],
+                            [0., 0.01, 0.06, 0.18, 0.37, 0.59, 0.65], 
+                            [0., 0.02, 0.16, 0.47, 0.77, 1.17, 1.72],
                         ] 
 
 

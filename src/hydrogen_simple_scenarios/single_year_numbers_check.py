@@ -5,11 +5,11 @@ import sys
 
 from .get_emissions_functions import get_sector_column_total, add_leakage, add_prod_emissions
 
-from .timeseries_functions import calc_GWP 
+from .timeseries_functions import calc_GWP, calc_GWP_star
 from .scenario_info import prod_methods, leak_rates, sector_info
 
 
-def get_gwp_values_df(sector, just_CO2 = False):
+def get_gwp_values_df(sector, just_CO2 = False, star=False):
     """
     Get DataFrame of gwp values for total sector replacement
 
@@ -37,12 +37,14 @@ def get_gwp_values_df(sector, just_CO2 = False):
             df_with_leak = add_leakage(
                 df_prod_now, sector_info[sector][1] * (1 + leak), leak
             )
-
-            gwp_values[i, j] = calc_GWP(df_with_leak, [0])
+            if star:
+                gwp_values[i, j] = calc_GWP_star(df_with_leak, [0], just_CO2=just_CO2)[0]
+            else:
+                gwp_values[i, j] = calc_GWP(df_with_leak, [0], just_CO2=just_CO2)
     gwp_df = pd.DataFrame(gwp_values, index=prod_methods.keys(), columns=leak_rates)
     return gwp_df
 
-def get_gwp_values_per_hydrogen_used(sector, just_CO2 = False):
+def get_gwp_values_per_hydrogen_used(sector, just_CO2 = False, star=False):
     """
     Get DataFrame of gwp replacement per Tg H2 employed
 
@@ -60,7 +62,7 @@ def get_gwp_values_per_hydrogen_used(sector, just_CO2 = False):
     -------
         pd.Dataframe
     """
-    gwp_values = get_gwp_values_df(sector, just_CO2=just_CO2).values
+    gwp_values = get_gwp_values_df(sector, just_CO2=just_CO2, star=star).values
     gwp_per_h2 = np.zeros_like(gwp_values)
     h2_need = sector_info[sector][1]
     for j, leak in enumerate(leak_rates):
