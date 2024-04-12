@@ -110,8 +110,13 @@ class COToHydrogenEmissionsConverter:
         return self.co_h2_factors["Agr_transp"]
 
 
-def prepare_emis_df(comp, split_type, yr=2019):
-    filename = comp + "_global_CEDS_emissions_by_" + split_type + "_2021_04_21.csv"
+def prepare_emis_df(comp, split_type, yr=2019, file_suffix = "_2021_04_21.csv"):
+    if file_suffix.startswith("_v2024"):
+        file_middle = "_CEDS_global_emissions_by_" 
+    else:
+        file_middle = "_global_CEDS_emissions_by_" 
+    
+    filename = comp + file_middle + split_type + file_suffix
     if split_type == "sector":
         data_emis = pd.read_csv(
             filepath + filename, delimiter=",", index_col=1, header=0, skiprows=0
@@ -127,7 +132,7 @@ def prepare_emis_df(comp, split_type, yr=2019):
     for i, year in enumerate(index):
         index[i] = year.split("X")[-1]
     data_emis.index = index.astype(int)
-    data_emis_yr = data_emis.loc[2019]
+    data_emis_yr = data_emis.loc[yr]
     data_emis_yr.name = comp
     return data_emis_yr
 
@@ -142,36 +147,32 @@ def get_native_hydrogen_sector_column(sector, df_replacements):
     return df_replacements
 
 
-def get_sector_column(sector, type_split="sector", just_CO2 = False, ignore_bb = False):
+def get_sector_column(sector, type_split="sector", just_CO2 = False, ignore_bb = False, year=2019, file_suffix = "_2021_04_21.csv"):
     df_replacements = pd.DataFrame(0.0, columns=complist, index=[sector])
     if sector.startswith("native_hydrogen"):
         return get_native_hydrogen_sector_column(sector, df_replacements)
-    converter = COToHydrogenEmissionsConverter(just_CO2 = just_CO2, ignore_bb = ignore_bb)
+    
     for comp in complist:
-        if comp == "H2":
-            data_emis = prepare_emis_df("CO", type_split, yr=2019)
-
-        else:
-            data_emis = prepare_emis_df(comp, type_split, yr=2019)
-        if sector == "Total":
-            if comp == "H2":
-                
-                for sub_sector in data_emis.index:
-                    df_replacements[comp][sector] = df_replacements[comp][
-                        sector
-                    ] + data_emis[sub_sector] * converter.get_co_to_h2_factor(sub_sector)
-            else:
-                df_replacements[comp][sector] = data_emis.sum()
-        elif comp == "H2":
-            df_replacements[comp][sector] = df_replacements[comp][sector] + data_emis[
-                sector
-            ] * converter.get_co_to_h2_factor(sector)
-        else:
-            df_replacements[comp][sector] = (
-                df_replacements[comp][sector] + data_emis[sector]
-            )
+        df_replacements[comp][sector] = get_sector_column_single_comp(comp, sector, type_split=type_split, just_CO2=just_CO2, ignore_bb=ignore_bb, year=year, file_suffix=file_suffix)
     return df_replacements
 
+def get_sector_column_single_comp(comp, sector, type_split="sector", just_CO2 = False, ignore_bb = False, year=2019, file_suffix = "_2021_04_21.csv"):
+    if comp == "H2":
+        data_emis = prepare_emis_df("CO", type_split, yr=year, file_suffix=file_suffix)
+        converter = COToHydrogenEmissionsConverter(just_CO2 = just_CO2, ignore_bb = ignore_bb)
+    else:
+        data_emis = prepare_emis_df(comp, type_split, yr=year, file_suffix=file_suffix)
+    if sector == "Total":
+        sum = 0
+        if comp == "H2":               
+            for sub_sector in data_emis.index:
+                sum = sum + data_emis[sub_sector] * converter.get_co_to_h2_factor(sub_sector)
+            return sum
+        return data_emis.sum()
+    elif comp == "H2":
+        return data_emis[sector] * converter.get_co_to_h2_factor(sector)
+        
+    return data_emis[sector]
 
 def get_sector_column_total(sectors, type_split="sector", just_CO2 = False):
     """

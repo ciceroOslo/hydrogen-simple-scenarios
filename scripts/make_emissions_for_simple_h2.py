@@ -28,7 +28,7 @@ ssps = [
     "ssp534-over",
     "ssp585",
 ]
-species = ["H2", "CO", "VOC", "NOx"]
+species = ['BC', 'OC', 'NH3']#["H2", "CO", "VOC", "NOx"]
 years_ssp = ssp_data_extraction.get_years(ssp_file)
 for comp in species:
     # get historical:
