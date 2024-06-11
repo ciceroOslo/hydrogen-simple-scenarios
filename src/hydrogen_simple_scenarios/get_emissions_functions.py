@@ -8,6 +8,7 @@ filepath = "/mnt/c/Users/masan/Downloads/Input_for_scenarios/"
 
 # GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4":27.9,  "NMVOC": 10.9, "NOx": -(42+56)/2}
 GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4": 27.9, "NMVOC": 10.5, "NOx": 0}
+GWP20_dict = {"H2": 37.3, "CO2": 1, "CO": (7.6+8.2)/2, "CH4": 81.2, "NMVOC": (38+35)/2, "NOx": 0}
 # H2: Sand et al 2023, CO, NMVOC and NOx global summer/winter average from Aamaas 2016, CH4 AR6
 complist = GWP_dict.keys()
 

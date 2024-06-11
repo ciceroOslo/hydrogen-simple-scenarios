@@ -129,6 +129,7 @@ for j, leak_rate in enumerate(leak_rates):
                ts_bg_energy]
     gwp_starish = np.zeros((len(ts_list), len(years)))
     gwp_just_co2 = np.zeros((len(ts_list), len(years)))
+    gwp_other_comps = np.zeros((len(ts_list), len(get_emissions_functions.GWP_dict)-1, len(years)))
     for i, ts in enumerate(ts_list):
         emissions_ts = timeseries_functions.make_emission_ts(sectors[sectors_list[i]][0], ts, years)
         #print(emissions_ts)
@@ -138,8 +139,16 @@ for j, leak_rate in enumerate(leak_rates):
         emissions_ts = timeseries_functions.add_prod_emissions_ts(emissions_ts, sectors[sectors_list[i]][1]*1e3, sectors[sectors_list[i]][2], years, ts)
         #print(emissions_ts)
         #sys.exit(4)
-        gwp_starish[i,:], gwp_just_co2[i,:] = timeseries_functions.calc_GWP_star(emissions_ts, years) 
+        gwp_starish[i,:], gwp_just_co2[i,:], gwp_other_comps[i,:,:] = timeseries_functions.calc_GWP_star(emissions_ts, years)
+        #print(f"gwp_starish: {gwp_starish[i,:5]/1.e6} ... {gwp_starish[i,-5:]/1.e6}")
+        #print(f"gwp_starish: {gwp_just_co2[i,:5]/1.e6} ... {gwp_just_co2[i,-5:]/1.e6}") 
+        gwp_diff = gwp_starish[i,:] - gwp_just_co2[i,:]
+        #print(f"gwp_diff: {gwp_diff[:5]/1.e6} ... {gwp_diff[-5:]/1.e6}") 
+        #sys.exit(4)
     axs2[j].stackplot(years, gwp_starish/1e6, labels = sectors_list)
+    if j ==1:
+        axs2[j].fill_between(years, gwp_starish[1,:]/1e6, 0, color = "tab:orange")
+    axs2[j].axhline(0, color='black', alpha=0.8)
     axs3[j].stackplot(years, gwp_just_co2/1e6, labels = sectors_list)
     #print(gwp_just_co2)
     #sys.exit(4)
@@ -151,7 +160,7 @@ for j, leak_rate in enumerate(leak_rates):
 secax2.set_ylabel('Mitigated warming (mK)')
 secax3.set_ylabel('Mitigated warming (mK)')
 for i in range(len(axs1)):
-    axs1[i].legend(loc='center left')
+    axs1[i].legend(loc='upper left')
     axs1[i].set_title(f"{chr(i+97)})", fontsize=size*0.75, loc='left')
     axs1[i].set_xlabel("Year")
 axs1[1].set_ylabel("H2 used (Tg/yr)")

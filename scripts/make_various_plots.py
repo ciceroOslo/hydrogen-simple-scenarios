@@ -15,7 +15,7 @@ plt.rcParams.update(params)
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../", "src"))
 
-from hydrogen_simple_scenarios import get_emissions_functions, scenario_info, ssp_data_extraction
+from hydrogen_simple_scenarios import scenario_info, ssp_data_extraction
 
 data_path = "/mnt/c/Users/masan/Downloads/Input_for_scenarios/SSP_CMIP6_201811.csv"
 
@@ -46,12 +46,15 @@ def plot_co_emissions_and_scaled_hydrogen():
     plt.clf()
 
 datapath_simpleh2 = os.path.join(os.path.dirname("__file__"), "..", "..", "simpleH2", "input")
-def make_nox_co_ratio_and_ch4_plot(scenarios, title= "methane_and_nox_co_scenarios.png", include_nmvoc=True):
+
+def make_nox_co_ratio_and_ch4_plot(scenarios, title= "methane_and_nox_co_scenarios.png", include_nmvoc=True, other_colours=None):
     ncols = 2
     if include_nmvoc:
         ncols = ncols+1
     fig, axs = plt.subplots(nrows=1,ncols=ncols,squeeze=True,figsize=(27/3*ncols,10),sharey=False)
     for scen, colour in scenario_info.scens_colours.items():
+        if other_colours and scen in other_colours:
+            colour = other_colours[scen]
         if scen not in scenarios:
             continue
         scenlabel = scen.upper()# scenario_info.scens_reverse[scen]
@@ -74,11 +77,11 @@ def make_nox_co_ratio_and_ch4_plot(scenarios, title= "methane_and_nox_co_scenari
         #ax.xaxis.set_major_locator(loc)
         axs[i].set_title(f"{chr(i+97)})", fontsize=size*0.75, loc='left')
     axs[0].set_ylabel("Methane concentration [ppb]")
-    axs[1].set_ylabel("NOx/CO")
-    axs[0].set_title('Methane concentration', fontweight="bold")
-    axs[1].set_title('NOx/CO emissions', fontweight="bold")
+    axs[1].set_ylabel("NOx/CO emissions ratio")
+    #axs[0].set_title('Methane concentration', fontweight="bold")
+    #axs[1].set_title('NOx/CO emissions', fontweight="bold")
     if include_nmvoc:
-        axs[2].set_title('NMVOC emissions', fontweight="bold")
+        #axs[2].set_title('NMVOC emissions', fontweight="bold")
         axs[2].set_ylabel("NMVOC emissions [Tg NMVOC/yr]")  
     plt.savefig(title)
 
@@ -129,7 +132,14 @@ def make_hydrogen_energy_plot():
     #plt.tight_layout()
 
 #scenarios = ['ssp119', 'ssp126', 'ssp245', 'ssp370','ssp434','ssp460', 'ssp534-over', 'ssp585']
-scenarios = ['ssp119', 'ssp434', 'ssp585']
+
 #plot_co_emissions_and_scaled_hydrogen()
-make_nox_co_ratio_and_ch4_plot(scenarios, title= "methane_nox_co_ratio_for_ragnhild_wnmvoc.png", include_nmvoc=True)
+
+#make_nox_co_ratio_and_ch4_plot(scenarios, title= "methane_nox_co_ratio_wnmvoc.png", include_nmvoc=True)
+
+
+#plot for Ragnhilds paper
+scenarios = ['ssp119', 'ssp434', 'ssp585']
+make_nox_co_ratio_and_ch4_plot(scenarios, title= "methane_nox_co_ratio_for_ragnhild_wnmvoc.png", include_nmvoc=False, other_colours={"ssp434": scenario_info.scens_colours["ssp126"]})
+
 #make_hydrogen_energy_plot()
