@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_rgba
 import sys, os
 from scipy.interpolate import CubicSpline
 
@@ -36,7 +37,7 @@ leak_rates = [0, 0.1]#, 0.01, 0.05, 0.1]
 
 fig1, axs1 = plt.subplots(ncols=len(leak_rates)+1, nrows=1, sharey=True, figsize=(16,8))
 fig1.suptitle("Hydrogen production and use breakdown", fontsize=size)
-axs1[0].stackplot(years, blue_hydrogen_timeline,green_hydrogen_timeline, labels = ["Fossil-based with CCS", "Renewable electrolysis"])
+axs1[0].stackplot(years, blue_hydrogen_timeline,green_hydrogen_timeline, colors = ["tab:blue", "tab:green"], labels = ["Fossil-based with CCS", "Renewable electrolysis"], edgecolor='white')
 axs1[0].set_ylabel("H2 produced (Tg/yr)")
 axs1[0].set_title("DNV production", fontsize=size*0.9, fontweight = "bold")
 
@@ -57,6 +58,20 @@ sectors_list = [
     "Feedstock from green", 
     "Steel", 
     "Generic energy"
+]
+colors_list = [
+    "tab:blue",
+    "tab:cyan", #"darkblue",
+    "tab:green",
+    "tab:olive",
+    "lime",
+]
+edgecolors_list = [
+    "tab:blue",
+    "white", #"darkblue",
+    "tab:green",
+    "tab:olive",
+    "lime",
 ]
 sectors = {"Feedstock from blue": [
             get_emissions_functions.get_sector_column_total(scenario_info.sector_info["current_hydrogen"][0]), 
@@ -117,8 +132,11 @@ for j, leak_rate in enumerate(leak_rates):
                      ts_feedstock_green*feedstock_total_TG, 
                      ts_steel*steel_total_TG,
                      ts_bg_energy*bg_total_TG,
+                     colors = colors_list,
+                     #edgecolors=edgecolors_list, 
                      labels=sectors_list
                      )
+    axs1[j+1].stackplot(years, blue_avail,green_avail, colors = [to_rgba('tab:blue', 0.2), to_rgba("tab:green",0.2)], edgecolor=(1,1,1,1))
     axs1[j+1].set_title(f"Leak rate {int(leak_rate*100)}%", fontsize=size*0.9, fontweight = "bold")
 
     # Now for the timeseries of GWP(*) and mitigated warming
@@ -143,39 +161,47 @@ for j, leak_rate in enumerate(leak_rates):
         #print(f"gwp_starish: {gwp_starish[i,:5]/1.e6} ... {gwp_starish[i,-5:]/1.e6}")
         #print(f"gwp_starish: {gwp_just_co2[i,:5]/1.e6} ... {gwp_just_co2[i,-5:]/1.e6}") 
         gwp_diff = gwp_starish[i,:] - gwp_just_co2[i,:]
+        
         #print(f"gwp_diff: {gwp_diff[:5]/1.e6} ... {gwp_diff[-5:]/1.e6}") 
         #sys.exit(4)
-    axs2[j].stackplot(years, gwp_starish/1e6, labels = sectors_list)
+    axs2[j].stackplot(years, gwp_starish/1e6, labels = sectors_list, colors = colors_list)
+    blue_star = gwp_starish[0,:] + gwp_starish[1,:]
+    green_star = gwp_starish[2,:] + gwp_starish[3,:] + gwp_starish[4,:]
+    axs2[j].stackplot(years, [blue_star/1e6, green_star/1e6], colors = [to_rgba('tab:blue', 0.2), to_rgba("tab:green",0.2)], edgecolor=(1,1,1,1))
     if j ==1:
-        axs2[j].fill_between(years, gwp_starish[1,:]/1e6, 0, color = "tab:orange")
+        axs2[j].fill_between(years, gwp_starish[1,:]/1e6, 0, color = colors_list[1])
     axs2[j].axhline(0, color='black', alpha=0.8)
-    axs3[j].stackplot(years, gwp_just_co2/1e6, labels = sectors_list)
+    axs3[j].stackplot(years, gwp_just_co2/1e6, labels = sectors_list, colors = colors_list)
+    blue_justco2 = gwp_just_co2[0,:] + gwp_just_co2[1,:]
+    green_justco2 = gwp_just_co2[2,:] + gwp_just_co2[3,:] + gwp_just_co2[4,:]
+    axs3[j].stackplot(years, [blue_justco2/1e6, green_justco2/1e6], colors = [to_rgba('tab:blue', 0.2), to_rgba("tab:green",0.2)], edgecolor=(1,1,1,1))
     #print(gwp_just_co2)
     #sys.exit(4)
     #axs2[j].stackplot(years, gwp_just_co2, alpha = 0.2)
     axs2[j].set_title(f"Leak rate {int(leak_rate*100)}%", fontsize=size*0.9, fontweight = "bold")
-    secax2 = axs2[j].secondary_yaxis('right', functions=(lambda x: x*0.4, lambda x: x/0.4))
+
     axs3[j].set_title(f"Leak rate {int(leak_rate*100)}%", fontsize=size*0.9, fontweight = "bold")
-    secax3 = axs3[j].secondary_yaxis('right', functions=(lambda x: x*0.4, lambda x: x/0.4))
-secax2.set_ylabel('Mitigated warming (mK)')
-secax3.set_ylabel('Mitigated warming (mK)')
+secax2 = axs2[1].secondary_yaxis('right', functions=(lambda x: x*0.4, lambda x: x/0.4))
+secax3 = axs3[1].secondary_yaxis('right', functions=(lambda x: x*0.4, lambda x: x/0.4))
+secax2.set_ylabel('Mitigated warming (mK)', fontsize=size*0.75)
+secax3.set_ylabel('Mitigated warming (mK)', fontsize=size*0.75)
 for i in range(len(axs1)):
     axs1[i].legend(loc='upper left')
     axs1[i].set_title(f"{chr(i+97)})", fontsize=size*0.75, loc='left')
-    axs1[i].set_xlabel("Year")
-axs1[1].set_ylabel("H2 used (Tg/yr)")
+    axs1[i].set_xlabel("Year", fontsize=size*0.75)
+axs1[1].set_ylabel("H2 used (Tg/yr)", fontsize=size*0.75)
 
 for i in range(len(axs2)):
     axs2[i].legend(loc='center left')
     axs2[i].set_title(f"{chr(i+97)})", fontsize=size*0.75, loc='left')
-    axs2[i].set_xlabel("Year")
-axs2[0].set_ylabel("Mitigated CO2 equivalents (GT CO2)")
+    axs2[i].set_xlabel("Year", fontsize=size*0.75)
+axs2[0].set_ylabel("Mitigated CO2 equivalents (GT CO2)", fontsize=size*0.75)
 
 for i in range(len(axs3)):
     axs3[i].legend(loc='center left')
     axs3[i].set_title(f"{chr(i+97)})", fontsize=size*0.75, loc='left')
-    axs3[i].set_xlabel("Year")
-axs3[0].set_ylabel("Mitigated CO2 (GT CO2)")
+    axs3[i].set_xlabel("Year", fontsize=size*0.75)
+axs3[0].set_ylabel("Mitigated CO2 (GT CO2)", fontsize=size*0.75)
 #plt.show()
 fig1.savefig("dnv_scenario_approximation_and_use.png")
 fig2.savefig("hydrogen_replacement_benefit.png")

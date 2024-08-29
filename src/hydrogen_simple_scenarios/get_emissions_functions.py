@@ -20,7 +20,7 @@ from .scenario_info import industrial_use_2019
 class COToHydrogenEmissionsConverter:
 
     # From supplementary of Paulot et al 2021
-    # i n t e rna t i onal journal o f hydrogen energy 4 6 ( 2 0 2 1 ) 1 3 4 4 6e1 3 4 6 0
+    # international journal of hydrogen energy 4 6 ( 2 0 2 1 ) 1 3 4 4 6e1 3 4 6 0
     co_h2_factors = {
         "Agr_transp": 0.0357,
         "Energy_ind": 0.0143,
