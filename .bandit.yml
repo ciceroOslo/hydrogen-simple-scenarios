@@ -1,0 +1,2 @@
+exclude_dirs:
+  - hydrogen_simple_scenarios/_version.py

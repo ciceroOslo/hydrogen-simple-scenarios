@@ -9,7 +9,7 @@ PACKAGE_NAME = "hydrogen-simple-scenarios"
 AUTHORS = [
     ("Marit Sandstad", "marit.sandstad@cicero.oslo.no"),
     ("Ragnhild Bieltvedt Skeie", "r.b.skeie@cicero.oslo.no"),
-    ("Srinath Krishnan", "")
+    ("Srinath Krishnan", ""),
 ]
 URL = "https://github.com/ciceroOslo/hydrogen-simple-scenarios"
 
@@ -18,14 +18,7 @@ README = "README.rst"
 
 SOURCE_DIR = "src"
 
-REQUIREMENTS = [
-    "click",
-    ""
-    "python-dotenv",
-    "tqdm",
-    "matplotlib>=3.4",
-    "scipy"
-]
+REQUIREMENTS = ["click", "" "python-dotenv", "tqdm", "matplotlib>=3.4", "scipy"]
 
 REQUIREMENTS_NOTEBOOKS = [
     "ipywidgets",
@@ -72,7 +65,9 @@ REQUIREMENTS_EXTRAS = {
 # no tests/docs in `src` so don't need exclude
 PACKAGES = find_packages(SOURCE_DIR)
 PACKAGE_DIR = {"": SOURCE_DIR}
-PACKAGE_DATA = {}#{"hydrogen-simple-scenarios": [os.path.join("default_data", "*.txt")]}
+PACKAGE_DATA = (
+    {}
+)  # {"hydrogen-simple-scenarios": [os.path.join("default_data", "*.txt")]}
 
 # Get the long description from the README file
 with open(README, "r") as f:
@@ -108,7 +103,7 @@ cmdclass.update({"test": hydrogenSimpleScenarios})
 setup(
     name=PACKAGE_NAME,
     version=versioneer.get_version(),
-    python_requires='>=3.8',
+    python_requires=">=3.8",
     description=DESCRIPTION,
     long_description="\n".join(README_LINES),
     long_description_content_type="text/x-rst",
