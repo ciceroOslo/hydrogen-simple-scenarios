@@ -1,6 +1,7 @@
 import numpy as np
+import pandas as pd
 
-from hydrogen_simple_scenarios import timeseries_functions
+from hydrogen_simple_scenarios import timeseries_functions, get_emissions_functions
 
 
 def test_various_timeseries_functions():
@@ -13,3 +14,33 @@ def test_various_timeseries_functions():
     )
     assert len(ts_test2) == 27
     assert np.allclose(ts_test2, 2 * ts_test1)
+
+    h2_tot_test = 100
+    leak_rate = np.random.uniform(high=0.1)
+    assert np.allclose(
+        timeseries_functions.get_hydrogen_available(h2_tot_test, leak_rate)*(1 + leak_rate), 
+        h2_tot_test
+    )
+
+    sum_need_test = timeseries_functions.get_hydrogen_used(ts_test1, leak_rate, h2_tot_test)
+    assert sum_need_test > np.sum(ts_test1*h2_tot_test)
+    
+    df_test_set_tot = get_emissions_functions.get_sector_column("Total")
+    years = np.arange(2024, 2050+1)
+    test_emis = timeseries_functions.make_emission_ts(df_test_set_tot, ts_test1, years)
+    assert isinstance(test_emis, pd.DataFrame)
+ 
+    assert test_emis.shape == (len(years)+1, df_test_set_tot.shape[1])
+
+    test_emis_with_leak = timeseries_functions.add_leakage_ts(test_emis, ts_test1, years, leak_rate, h2_tot_test)
+
+    assert test_emis_with_leak.shape == (len(years)+1, df_test_set_tot.shape[1])
+    # TODO: Read in or make a df_repl and make emissions ts to test
+
+
+    # TODO: Then add leakage ts to it
+    # TODO Then add prod emissions to that
+
+    #em_ts_test = timeseries_functions.make_emissions_ts()
+
+    # TODO: test other functions in timeseries_functions
