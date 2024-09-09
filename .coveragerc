@@ -1,0 +1,14 @@
+[run]
+branch = True
+source = hydrogen-simple-scenarios
+omit = *_version.py,*testing.py
+include = get_emissions_functions.py,scenario_info.py,ssp_data_extraction.py,timeseries_functions.py
+
+[report]
+fail_under = 90
+exclude_lines =
+    if self.debug:
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == .__main__.:
+ignore_errors = True

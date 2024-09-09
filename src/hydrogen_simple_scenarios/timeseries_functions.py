@@ -100,7 +100,7 @@ def add_prod_emissions_ts(df_repl_ts_leak, h2_repl_need, emis_per_unit_h2, years
     ----------
     df_repl_ts_leak : pd.DataFrame
         A dataframe with emissions per year being replaced and hydrogen accounted for
-    emis_per_unit_h2 : pd.DataFrame
+    emis_per_unit_h2 : pd.DataFrame or dict
         With emissions per compound per hydrogen unit produced
     h2_repl_need : float
         The amount of H2 needed for total replacement of the sector
