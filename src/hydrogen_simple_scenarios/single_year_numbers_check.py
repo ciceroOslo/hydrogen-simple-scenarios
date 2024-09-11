@@ -11,7 +11,7 @@ from .get_emissions_functions import (
     get_sector_column_total,
 )
 from .scenario_info import leak_rates, prod_methods, sector_info
-from .timeseries_functions import calc_GWP, calc_GWP20, calc_GWP_star
+from .timeseries_functions import calc_gwp, calc_gwp20, calc_gwp_star
 
 
 def get_gwp_values_df(sector, just_CO2=False, star=False, gwp20=False):
@@ -39,9 +39,9 @@ def get_gwp_values_df(sector, just_CO2=False, star=False, gwp20=False):
     """
     df_repl = get_sector_column_total(sector_info[sector][0], just_CO2)
     gwp_values = np.zeros((len(prod_methods), len(leak_rates)))
-    for i, (prod, prod_emis) in enumerate(
+    for i, (prod, prod_emis) in enumerate(  # pylint: disable=unused-variable
         prod_methods.items()
-    ):  # pylint: disable=unused-variable
+    ):
         df_prod_now = df_repl.copy()
         df_prod_now = add_prod_emissions(df_prod_now, sector_info[sector][1], prod_emis)
         for j, leak in enumerate(leak_rates):
@@ -49,13 +49,13 @@ def get_gwp_values_df(sector, just_CO2=False, star=False, gwp20=False):
                 df_prod_now, sector_info[sector][1] * (1 + leak), leak
             )
             if star:
-                gwp_values[i, j] = calc_GWP_star(df_with_leak, [0], just_CO2=just_CO2)[
+                gwp_values[i, j] = calc_gwp_star(df_with_leak, [0], just_CO2=just_CO2)[
                     0
                 ]
             elif gwp20:
-                gwp_values[i, j] = calc_GWP20(df_with_leak, [0], just_CO2=just_CO2)
+                gwp_values[i, j] = calc_gwp20(df_with_leak, [0], just_CO2=just_CO2)
             else:
-                gwp_values[i, j] = calc_GWP(df_with_leak, [0], just_CO2=just_CO2)
+                gwp_values[i, j] = calc_gwp(df_with_leak, [0], just_CO2=just_CO2)
     gwp_df = pd.DataFrame(gwp_values, index=prod_methods.keys(), columns=leak_rates)
     return gwp_df
 

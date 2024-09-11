@@ -165,7 +165,7 @@ def get_hydrogen_available(h2_total, leak_rate):
     return h2_avail
 
 
-def calc_GWP(df_repl_ts, years, just_CO2=False):
+def calc_gwp(df_repl_ts, years, just_CO2=False):
     """
     Calculate accumulated GWP100 for all components ver a timeseries
 
@@ -192,7 +192,7 @@ def calc_GWP(df_repl_ts, years, just_CO2=False):
     return sum_gwp
 
 
-def calc_GWP20(df_repl_ts, years, just_CO2=False):
+def calc_gwp20(df_repl_ts, years, just_CO2=False):
     """
     Calculate accumulated GWP20 for all components ver a timeseries
 
@@ -219,7 +219,7 @@ def calc_GWP20(df_repl_ts, years, just_CO2=False):
     return sum_gwp
 
 
-def calc_GWP_star(df_repl_ts, years, just_CO2=False):
+def calc_gwp_star(df_repl_ts, years, just_CO2=False):
     """
     Calculate accumulated GWP* for all components ver a timeseries
 
@@ -273,7 +273,7 @@ def calc_GWP_star(df_repl_ts, years, just_CO2=False):
     return sum_gwp_star, sum_gwp_just_co2, sum_gwp_star_per_component
 
 
-def transform_GWP_series_to_mitigated_warming(co2_equiv_timeseries, TCRE=0.4e-6):
+def transform_gwp_series_to_mitigated_warming(co2_equiv_timeseries, TCRE=0.4e-6):
     """
     Transform mitigated GWP* timeseries into mitigate warming
 

@@ -57,31 +57,31 @@ def test_various_timeseries_functions():
     assert test_emis_with_leak_prod.shape == (len(years) + 1, df_test_set_tot.shape[1])
     assert np.allclose(test_emis_with_leak.values, test_emis_with_leak_prod.values)
 
-    gwp_normal = timeseries_functions.calc_GWP(test_emis_with_leak_prod, years)
-    gwp_co2 = timeseries_functions.calc_GWP(
+    gwp_normal = timeseries_functions.calc_gwp(test_emis_with_leak_prod, years)
+    gwp_co2 = timeseries_functions.calc_gwp(
         test_emis_with_leak_prod, years, just_CO2=True
     )
 
     assert gwp_normal > gwp_co2
 
-    gwp20 = timeseries_functions.calc_GWP20(test_emis_with_leak_prod, years)
-    gwp20_co2 = timeseries_functions.calc_GWP20(
+    gwp20 = timeseries_functions.calc_gwp20(test_emis_with_leak_prod, years)
+    gwp20_co2 = timeseries_functions.calc_gwp20(
         test_emis_with_leak_prod, years, just_CO2=True
     )
     assert gwp20 > gwp_normal
     assert gwp20_co2 == gwp_co2
 
-    gwpstar = timeseries_functions.calc_GWP_star(test_emis_with_leak_prod, years)
-    gwpstar_co2 = timeseries_functions.calc_GWP_star(
+    gwpstar = timeseries_functions.calc_gwp_star(test_emis_with_leak_prod, years)
+    gwpstar_co2 = timeseries_functions.calc_gwp_star(
         test_emis_with_leak_prod, years, just_CO2=True
     )
     assert gwpstar[0].sum() > gwp20
     assert np.allclose(gwpstar_co2[0], gwpstar_co2[1])
 
-    temp_equiv_tot = timeseries_functions.transform_GWP_series_to_mitigated_warming(
+    temp_equiv_tot = timeseries_functions.transform_gwp_series_to_mitigated_warming(
         gwpstar[0]
     )
-    temp_equiv_tot_co2 = timeseries_functions.transform_GWP_series_to_mitigated_warming(
+    temp_equiv_tot_co2 = timeseries_functions.transform_gwp_series_to_mitigated_warming(
         gwpstar_co2[0]
     )
 

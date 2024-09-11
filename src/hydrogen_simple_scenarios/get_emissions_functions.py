@@ -5,7 +5,7 @@ Module to read and get emissions for compounds and scenario
 import numpy as np
 import pandas as pd
 
-from .scenario_info import industrial_use_2019
+from .scenario_info import INDUSTRIAL_USE_2019
 
 # FILEPATH = "/div/pdo/emissions/CEDS0521/TOTALS/"
 FILEPATH = "/mnt/c/Users/masan/Downloads/Input_for_scenarios/"
@@ -238,11 +238,11 @@ def get_native_hydrogen_sector_column(sector, df_replacements):
     """
     per_hydrogen_co2 = [17.21, 10.09]
     if sector == "native_hydrogen_high":
-        df_replacements.at[sector, "CO2"] = industrial_use_2019 * per_hydrogen_co2[0]
+        df_replacements.at[sector, "CO2"] = INDUSTRIAL_USE_2019 * per_hydrogen_co2[0]
     elif sector == "native_hydrogen_low":
-        df_replacements.at[sector, "CO2"] = industrial_use_2019 * per_hydrogen_co2[1]
+        df_replacements.at[sector, "CO2"] = INDUSTRIAL_USE_2019 * per_hydrogen_co2[1]
     else:
-        df_replacements.at[sector, "CO2"] = industrial_use_2019 * np.mean(
+        df_replacements.at[sector, "CO2"] = INDUSTRIAL_USE_2019 * np.mean(
             per_hydrogen_co2
         )
     return df_replacements

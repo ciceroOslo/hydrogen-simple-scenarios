@@ -7,7 +7,7 @@ import pandas as pd
 
 from .get_emissions_functions import COToHydrogenEmissionsConverter
 from .scenario_info import (
-    h2_energy_to_mass_conv_factor,
+    H2_ENERGY_TO_MASS_CONV_FACTOR,
     scen_reverse_model,
     scens_reverse,
 )
@@ -227,7 +227,7 @@ def get_ts_hydrogen_energy_and_mass(file, scen, region="World", model="empty"):
         region=region,
         model=model,
     )
-    mass_ts = energy_ts * h2_energy_to_mass_conv_factor
+    mass_ts = energy_ts * H2_ENERGY_TO_MASS_CONV_FACTOR
     return energy_ts, mass_ts
 
 

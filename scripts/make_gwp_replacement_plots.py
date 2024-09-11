@@ -135,17 +135,17 @@ width = 0.25
 alphas = [0.8, 0.7, 0.6]
 
 hyd_per_mit_carbon_dict = {}
-scen_index=[
-            "Replace now no_leak",
-            "Replace now leak_1p",
-            "Replace now leak_10p",
-            "Delay to 2030 no_leak",
-            "Delay to 2030 leak 1p",
-            "Delay to 2030 leak 10p",
-            "Delay to 2040 no leak",
-            "Delay to 2040 leak 1p",
-            "Delay to 2040 leak 10p",
-        ]
+scen_index = [
+    "Replace now no_leak",
+    "Replace now leak_1p",
+    "Replace now leak_10p",
+    "Delay to 2030 no_leak",
+    "Delay to 2030 leak 1p",
+    "Delay to 2030 leak 10p",
+    "Delay to 2040 no leak",
+    "Delay to 2040 leak 1p",
+    "Delay to 2040 leak 10p",
+]
 
 for name_prod, prod_method in prod_methods.items():
     fig, axs = plt.subplots(3, 2)
@@ -173,10 +173,13 @@ for name_prod, prod_method in prod_methods.items():
                 replaced_emis = timeseries_functions.add_prod_emissions_ts(
                     replaced_emis, h2_repl_need, prod_method, years, ts
                 )
-                GWP = timeseries_functions.calc_GWP(replaced_emis, years)
+                GWP = timeseries_functions.calc_gwp(replaced_emis, years)
                 print(f"GWP: {GWP} for leak rate {lr} in exp")
-                hydrogen_per_mitigated_carbon[row_num * 3 + multiplier, scen_i] = GWP / timeseries_functions.get_hydrogen_used(
-                    ts, years, lr, h2_repl_need
+                hydrogen_per_mitigated_carbon[row_num * 3 + multiplier, scen_i] = (
+                    GWP
+                    / timeseries_functions.get_hydrogen_used(
+                        ts, years, lr, h2_repl_need
+                    )
                 )
                 offset = width * multiplier
                 rects = axs[row_num, 0].bar(
@@ -196,7 +199,7 @@ for name_prod, prod_method in prod_methods.items():
                     alpha=alphas[multiplier],
                 )
                 multiplier += 1
-        
+
         axs[row_num, 0].set_ylim([0, 5.5e7])
         axs[row_num, 0].set_ylabel("kt CO2 equiv")
         axs[row_num, 0].set_title("Mitigated CO2")
@@ -209,9 +212,9 @@ for name_prod, prod_method in prod_methods.items():
     # axs[1, 0].set_title("Delay action to 2030")
     # axs[2, 0].set_title("Delay action to 2040")
 
-    hydrogen_per_mitigated_carbon_df = pd.DataFrame( 
+    hydrogen_per_mitigated_carbon_df = pd.DataFrame(
         hydrogen_per_mitigated_carbon,
-        index = scen_index,
+        index=scen_index,
         columns=timeseries_2040.keys(),
     )
     axs[0, 0].set_xticks([])

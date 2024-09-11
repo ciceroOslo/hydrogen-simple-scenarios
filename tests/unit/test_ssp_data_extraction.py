@@ -71,12 +71,11 @@ def test_get_ts_energy_and_mass():
         data_path_iam, scen="ssp585"
     )
     assert np.allclose(
-        test_ts1[0], test_ts1[1] / scenario_info.h2_energy_to_mass_conv_factor
+        test_ts1[0], test_ts1[1] / scenario_info.H2_ENERGY_TO_MASS_CONV_FACTOR
     )
 
 
 def test_get_years():
     years = ssp_data_extraction.get_years(data_path)
-    print(years)
     assert len(years) == 10
-    assert np.all(years[1:] == np.arange(2020, 2110, 10))
+    assert np.all(years.values[1:].astype(int) == np.arange(2020, 2110, 10))

@@ -80,7 +80,7 @@ total_sector = {
 # (Bhaskar et al., 2020; Fischedick et al., 2014; Material Economics, 2019; Rechberger et al., 2020; Vogl et al., 2018) from steel report
 # Carbon brief source lists 90 kg H2
 # https://www.carboncommentary.com/blog/2020/11/4/how-much-hydrogen-will-be-needed-to-replace-coal-in-making-steel
-h2_repl_need_total_steel = 1.8e9 * 5e-5
+H2_REPL_NEED_TOTAL_STEEL = 1.8e9 * 5e-5
 # 50 kg = 5e-5 kT (CEDS emissions are in kT)
 # TODO: Add natural gas h2_repl_need_total_natural_gas =
 
@@ -89,33 +89,33 @@ h2_repl_need_total_steel = 1.8e9 * 5e-5
 # EJ -> KWh : 277777777777.78
 # kWH-> kg H2 : 1 kg H2 = 33.3 kWh (Warwick)
 # kg H2 -> Tg H2: 1e-9
-h2_energy_to_mass_conv_factor = 277777777777.78 / 33.3 * 1e-9
+H2_ENERGY_TO_MASS_CONV_FACTOR = 277777777777.78 / 33.3 * 1e-9
 
 # Natural gas energy demand 2019
 # 3320 Mtoe according to Global_Energy_Review_2019 from iea
 # 1 Mtoe = 0.041868 EJ
-natural_gas_energy_demand_2019 = 0.041868 * 3320
+NATURAL_GAS_ENERGY_DEMAND_2019 = 0.041868 * 3320
 
 # Wikipedia https://en.wikipedia.org/wiki/World_energy_supply_and_consumption
 # Number seems to have come from
 # https://yearbook.enerdata.net/total-energy/world-consumption-statistics.html
 # 1 Mtoe = 0.041868 EJ
-total_energy_demand_2019 = 0.041868 * 14400
+TOTAL_ENERGY_DEMAND_2019 = 0.041868 * 14400
 # https://www.statista.com/statistics/1199339/global-hydrogen-production-and-consumption-by-sector/
 # This is from gas reformation and not as chemical process by-product.
 # 69 MT = 69 Tg # CEDS emissions is in kT
-industrial_use_2019 = 69e3
+INDUSTRIAL_USE_2019 = 69e3
 
 sector_info = {
-    "steel": [steel_sectors, h2_repl_need_total_steel],
+    "steel": [steel_sectors, H2_REPL_NEED_TOTAL_STEEL],
     "natural_gas": [
         natural_gas_sectors,
-        natural_gas_energy_demand_2019 * h2_energy_to_mass_conv_factor * 1e3,
+        NATURAL_GAS_ENERGY_DEMAND_2019 * H2_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
     ],
-    "current_hydrogen": ["native_hydrogen_mid", industrial_use_2019],
+    "current_hydrogen": ["native_hydrogen_mid", INDUSTRIAL_USE_2019],
     "total": [
         total_sector,
-        total_energy_demand_2019 * h2_energy_to_mass_conv_factor * 1e3,
+        TOTAL_ENERGY_DEMAND_2019 * H2_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
     ],
 }
 
@@ -124,9 +124,9 @@ leak_rates = [0, 0.01, 0.05, 0.1]
 # TODO: Figure out how to add "1B2b_Fugitive-NG-prod" sector to
 # the blue production sectors...
 # 2019 CH4 in "1B2b_Fugitive-NG-prod" (only emission from this sector)
-CH4_blue = 21.55 / (natural_gas_energy_demand_2019 * h2_energy_to_mass_conv_factor)
-blue_opt = {"CO2": 1, "CH4": CH4_blue}  # kT CO2 per ton Hydrogen
-blue_pes = {"CO2": 3.8, "CH4": CH4_blue}
+CH4_BLUE = 21.55 / (NATURAL_GAS_ENERGY_DEMAND_2019 * H2_ENERGY_TO_MASS_CONV_FACTOR)
+blue_opt = {"CO2": 1, "CH4": CH4_BLUE}  # kT CO2 per ton Hydrogen
+blue_pes = {"CO2": 3.8, "CH4": CH4_BLUE}
 green = {"CO2": 0}
 bhccs = {"CO2": -10.0}
 
