@@ -8,9 +8,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../", "src"))
 from hydrogen_simple_scenarios import get_emissions_functions, timeseries_functions
 
 sectors = {
-    "1A2a_Ind-Comb-Iron-steel": 1,
-    "2A2_Lime-production": 0.4,
-    "2C_Metal-production": 0.75,
+    "1A2a_Ind-Comb-Iron-steel": [1, "sector"],
+    "2A2_Lime-production": [0.4, "sector"],
+    "2C_Metal-production": [0.75, "sector"],
 }
 # sector = '1A3di_International-shipping'
 blue_opt = {"CO2": 1}  # kT CO2 per tonne Hydrogen
@@ -178,7 +178,7 @@ for name_prod, prod_method in prod_methods.items():
                 hydrogen_per_mitigated_carbon[row_num * 3 + multiplier, scen_i] = (
                     GWP
                     / timeseries_functions.get_hydrogen_used(
-                        ts, years, lr, h2_repl_need
+                        ts, lr, h2_repl_need
                     )
                 )
                 offset = width * multiplier
