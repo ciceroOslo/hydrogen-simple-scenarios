@@ -10,7 +10,7 @@ from .get_emissions_functions import (
     add_prod_emissions,
     get_sector_column_total,
 )
-from .scenario_info import leak_rates, prod_methods, sector_info
+from .scenario_info import leak_rates, prod_methods, sector_info_all
 from .timeseries_functions import calc_gwp, calc_gwp20, calc_gwp_star
 
 
@@ -18,7 +18,7 @@ def get_gwp_values_df(sector, just_CO2=False, star=False, gwp20=False):
     """
     Get DataFrame of gwp values for total sector replacement
 
-    Given a sector that is defined in sector_info of scenario_info
+    Given a sector that is defined in sector_info_all of scenario_info
     the total GWP benefits of replacing current fossil fuel use in this
     sector with hydrogen for each of the scenario_info defined leak_rates
     and prod_methods
@@ -26,7 +26,7 @@ def get_gwp_values_df(sector, just_CO2=False, star=False, gwp20=False):
     Parameters
     ----------
     sector : str
-        Name of sector. Should be one for which values are defined in sector_info
+        Name of sector. Should be one for which values are defined in sector_info_all
     just_CO2 : bool
         Whether to consider just direct CO2 emissions
     star : bool
@@ -37,16 +37,16 @@ def get_gwp_values_df(sector, just_CO2=False, star=False, gwp20=False):
     -------
         pd.Dataframe
     """
-    df_repl = get_sector_column_total(sector_info[sector][0], just_CO2)
+    df_repl = get_sector_column_total(sector_info_all[sector][0], just_CO2)
     gwp_values = np.zeros((len(prod_methods), len(leak_rates)))
     for i, (prod, prod_emis) in enumerate(  # pylint: disable=unused-variable
         prod_methods.items()
     ):
         df_prod_now = df_repl.copy()
-        df_prod_now = add_prod_emissions(df_prod_now, sector_info[sector][1], prod_emis)
+        df_prod_now = add_prod_emissions(df_prod_now, sector_info_all[sector][1], prod_emis)
         for j, leak in enumerate(leak_rates):
             df_with_leak = add_leakage(
-                df_prod_now, sector_info[sector][1] * (1 + leak), leak
+                df_prod_now, sector_info_all[sector][1] * (1 + leak), leak
             )
             if star:
                 gwp_values[i, j] = calc_gwp_star(df_with_leak, [0], just_CO2=just_CO2)[
@@ -64,7 +64,7 @@ def get_gwp_values_per_hydrogen_used(sector, just_CO2=False, star=False, gwp20=F
     """
     Get DataFrame of gwp replacement per Tg H2 employed
 
-    Given a sector that is defined in sector_info of scenario_info
+    Given a sector that is defined in sector_info_all of scenario_info
     the per Tg hydrogen benefit of replacing current fossil fuel use in this
     sector with hydrogen for each of the scenario_info defined leak_rates
     and prod_methods
@@ -72,7 +72,7 @@ def get_gwp_values_per_hydrogen_used(sector, just_CO2=False, star=False, gwp20=F
     Parameters
     ----------
     sector : str
-        Name of sector. Should be one for which values are defined in sector_info
+        Name of sector. Should be one for which values are defined in sector_info_all
     just_CO2 : bool
         Whether to consider just direct CO2 emissions
     star : bool
@@ -88,7 +88,7 @@ def get_gwp_values_per_hydrogen_used(sector, just_CO2=False, star=False, gwp20=F
         sector, just_CO2=just_CO2, star=star, gwp20=gwp20
     ).values
     gwp_per_h2 = np.zeros_like(gwp_values)
-    h2_need = sector_info[sector][1]
+    h2_need = sector_info_all[sector][1]
     for j, leak in enumerate(leak_rates):
         h2_need_tot = (1 + leak) * h2_need
         gwp_per_h2[:, j] = gwp_values[:, j] / h2_need_tot
@@ -102,7 +102,7 @@ def get_benefit_loss_df(sector, just_CO2=False):
     """
     Get DataFrame of percentage benefit loss due to production or leak emissions
 
-    Given a sector that is defined in sector_info of scenario_info
+    Given a sector that is defined in sector_info_all of scenario_info
     the total GWP benefits of replacing current fossil fuel use in this
     sector with hydrogen for each of the scenario_info defined leak_rates
     and prod_methods, then the percentage benefit loss due to either production
@@ -112,7 +112,7 @@ def get_benefit_loss_df(sector, just_CO2=False):
     Parameters
     ----------
     sector : str
-        Name of sector. Should be one for which values are defined in sector_info
+        Name of sector. Should be one for which values are defined in sector_info_all
     just_CO2 : bool
         Whether to consider just direct CO2 emissions
 

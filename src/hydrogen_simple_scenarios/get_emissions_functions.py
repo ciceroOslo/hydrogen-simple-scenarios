@@ -218,7 +218,7 @@ def prepare_emis_df(comp, type_split, year=2019, file_suffix="_2021_04_21.csv"):
     return data_emis_yr
 
 
-def get_native_hydrogen_sector_column(sector, df_replacements):
+def get_native_hydrogen_sector_column(sector, df_replacements, ammonia=False):
     """
     Get CO2 emissions for native hydrogen sector
 
@@ -245,6 +245,12 @@ def get_native_hydrogen_sector_column(sector, df_replacements):
         df_replacements.at[sector, "CO2"] = INDUSTRIAL_USE_2019 * np.mean(
             per_hydrogen_co2
         )
+
+    # TODO make this better. For now 
+    # https://royalsociety.org/-/media/policy/projects/green-ammonia/green-ammonia-policy-briefing.pdf
+    # Says ammonia production emissions are 90% hydrogen production emissions.
+    if ammonia:
+        df_replacements.at[sector, "CO2"] = df_replacements.at[sector, "CO2"] / 0.9
     return df_replacements
 
 
@@ -283,6 +289,8 @@ def get_sector_column(
     df_replacements = pd.DataFrame(0.0, columns=complist, index=[sector])
     if sector.startswith("native_hydrogen"):
         return get_native_hydrogen_sector_column(sector, df_replacements)
+    if sector.startswith("native_ammonia"):
+        return get_native_hydrogen_sector_column(sector.replace("ammonia", "hydrogen"), df_replacements, ammonia=True)
 
     for comp in complist:
         df_replacements[comp][sector] = get_sector_column_single_comp(

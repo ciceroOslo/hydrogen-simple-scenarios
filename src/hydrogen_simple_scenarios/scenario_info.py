@@ -74,6 +74,9 @@ total_sector = {
 }
 #    "BHCCS": bhccs
 # }
+international_shipping_sectors = {
+    "1A3di_International-shipping": [1, "sector"]
+}
 
 # 1.8e9 tonnes steel per year
 # 1 ton steel requires 50-60 kg H2
@@ -82,14 +85,20 @@ total_sector = {
 # https://www.carboncommentary.com/blog/2020/11/4/how-much-hydrogen-will-be-needed-to-replace-coal-in-making-steel
 H2_REPL_NEED_TOTAL_STEEL = 1.8e9 * 5e-5
 # 50 kg = 5e-5 kT (CEDS emissions are in kT)
-# TODO: Add natural gas h2_repl_need_total_natural_gas =
-
 
 # Convert to hydrogen mass:
 # EJ -> KWh : 277777777777.78
 # kWH-> kg H2 : 1 kg H2 = 33.3 kWh (Warwick)
 # kg H2 -> Tg H2: 1e-9
 H2_ENERGY_TO_MASS_CONV_FACTOR = 277777777777.78 / 33.3 * 1e-9
+
+# Ammonia has 18.6 MJ per kg (https://www.bv.com/perspectives/ammonia-fuel-vs-hydrogen-carrier/)
+NH3_ENERGY_TO_MASS_CONV_FACTOR = 1 / (18.6e-12) * 1e-9
+
+# TODO: Better number for this
+# For now numbers from figure on page 94 of
+# https://iea.blob.core.windows.net/assets/4ad26550-05c4-4495-9891-98e588cd0be8/NetZeroRoadmap_AGlobalPathwaytoKeepthe1.5CGoalinReach-2023Update.pdf
+NH3_REPL_NEED_INT_SHIP = 11.5e3 * NH3_ENERGY_TO_MASS_CONV_FACTOR 
 
 # Natural gas energy demand 2019
 # 3320 Mtoe according to Global_Energy_Review_2019 from iea
@@ -106,6 +115,10 @@ TOTAL_ENERGY_DEMAND_2019 = 0.041868 * 14400
 # 69 MT = 69 Tg # CEDS emissions is in kT
 INDUSTRIAL_USE_2019 = 69e3
 
+# https://www.iea.org/reports/ammonia-technology-roadmap/executive-summary
+# 185 MT = 185 Tg 
+INDUSTRIAL_USE_2020_NH3 = 185e3 
+
 sector_info = {
     "steel": [steel_sectors, H2_REPL_NEED_TOTAL_STEEL],
     "natural_gas": [
@@ -118,6 +131,18 @@ sector_info = {
         TOTAL_ENERGY_DEMAND_2019 * H2_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
     ],
 }
+
+sector_info_ammonia = {
+    "international_shipping": [international_shipping_sectors, NH3_REPL_NEED_INT_SHIP],
+    "current_ammonia": ["native_ammonia_mid", INDUSTRIAL_USE_2020_NH3],
+    "total_ammonia": [
+        total_sector,
+        TOTAL_ENERGY_DEMAND_2019 * NH3_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
+    ],
+}
+
+sector_info_all = {**sector_info, **sector_info_ammonia}
+
 
 leak_rates = [0, 0.01, 0.05, 0.1]
 
