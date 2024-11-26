@@ -74,9 +74,7 @@ total_sector = {
 }
 #    "BHCCS": bhccs
 # }
-international_shipping_sectors = {
-    "1A3di_International-shipping": [1, "sector"]
-}
+international_shipping_sectors = {"1A3di_International-shipping": [1, "sector"]}
 
 # 1.8e9 tonnes steel per year
 # 1 ton steel requires 50-60 kg H2
@@ -98,7 +96,7 @@ NH3_ENERGY_TO_MASS_CONV_FACTOR = 1 / (18.6e-12) * 1e-9
 # TODO: Better number for this
 # For now numbers from figure on page 94 of
 # https://iea.blob.core.windows.net/assets/4ad26550-05c4-4495-9891-98e588cd0be8/NetZeroRoadmap_AGlobalPathwaytoKeepthe1.5CGoalinReach-2023Update.pdf
-NH3_REPL_NEED_INT_SHIP = 11.5e3 * NH3_ENERGY_TO_MASS_CONV_FACTOR 
+NH3_REPL_NEED_INT_SHIP = 11.5e3 * NH3_ENERGY_TO_MASS_CONV_FACTOR
 
 # Natural gas energy demand 2019
 # 3320 Mtoe according to Global_Energy_Review_2019 from iea
@@ -116,28 +114,35 @@ TOTAL_ENERGY_DEMAND_2019 = 0.041868 * 14400
 INDUSTRIAL_USE_2019 = 69e3
 
 # https://www.iea.org/reports/ammonia-technology-roadmap/executive-summary
-# 185 MT = 185 Tg 
-INDUSTRIAL_USE_2020_NH3 = 185e3 
+# 185 MT = 185 Tg
+INDUSTRIAL_USE_2020_NH3 = 185e3
 
 sector_info = {
-    "steel": [steel_sectors, H2_REPL_NEED_TOTAL_STEEL],
+    "steel": [steel_sectors, H2_REPL_NEED_TOTAL_STEEL, "hydrogen"],
     "natural_gas": [
         natural_gas_sectors,
         NATURAL_GAS_ENERGY_DEMAND_2019 * H2_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
+        "hydrogen",
     ],
-    "current_hydrogen": ["native_hydrogen_mid", INDUSTRIAL_USE_2019],
+    "current_hydrogen": ["native_hydrogen_mid", INDUSTRIAL_USE_2019, "hydrogen"],
     "total": [
         total_sector,
         TOTAL_ENERGY_DEMAND_2019 * H2_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
+        "hydrogen",
     ],
 }
 
 sector_info_ammonia = {
-    "international_shipping": [international_shipping_sectors, NH3_REPL_NEED_INT_SHIP],
-    "current_ammonia": ["native_ammonia_mid", INDUSTRIAL_USE_2020_NH3],
+    "international_shipping": [
+        international_shipping_sectors,
+        NH3_REPL_NEED_INT_SHIP,
+        "ammonia",
+    ],
+    "current_ammonia": ["native_ammonia_mid", INDUSTRIAL_USE_2020_NH3, "ammonia"],
     "total_ammonia": [
         total_sector,
         TOTAL_ENERGY_DEMAND_2019 * NH3_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
+        "ammonia",
     ],
 }
 
@@ -155,10 +160,31 @@ blue_pes = {"CO2": 3.8, "CH4": CH4_BLUE}
 green = {"CO2": 0}
 bhccs = {"CO2": -10.0}
 
+
+def _rescale_dictionary_items(dictionary, scale_factor):
+    new_dict = dictionary.copy()
+    for name, item in new_dict.items():
+        new_dict[name] = item * scale_factor
+    return new_dict
+
+
+# TODO: Add ammonia specific production methods
+
 prod_methods = {
-    "Blue_optimistic": blue_opt,
-    "Blue_compliance": blue_pes,
-    "Green": green,
+    "hydrogen": {
+        "Blue_optimistic": blue_opt,
+        "Blue_compliance": blue_pes,
+        "Green": green,
+    },
+    "ammonia": {
+        "Blue_optimistic": _rescale_dictionary_items(
+            blue_opt, (INDUSTRIAL_USE_2019 * 0.9) / INDUSTRIAL_USE_2020_NH3
+        ),
+        "Blue_compliance": _rescale_dictionary_items(
+            blue_pes, (INDUSTRIAL_USE_2019 * 0.9) / INDUSTRIAL_USE_2020_NH3
+        ),
+        "Green": green,
+    },
 }
 
 dnv_scenario_timeline = [

@@ -55,6 +55,7 @@ def make_single_year_per_ammonia_gwp_benefit_comparison(
             secax = axs[i].secondary_yaxis(
                 "right", functions=(lambda x: x * 0.4, lambda x: x / 0.4)
             )
+    #sys.exit(4)
     eqvi_str = ""
     if not just_CO2:
         eqvi_str = " equivalent"

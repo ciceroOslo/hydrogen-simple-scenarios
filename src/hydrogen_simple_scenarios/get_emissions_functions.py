@@ -229,6 +229,8 @@ def get_native_hydrogen_sector_column(sector, df_replacements, ammonia=False):
         CO2 equivalent emissions per hydrogen use
     df_replacements: pd.DataFrame
         Dataframe to fill in the CO2 equivalent emissions from the native hydrogen use into
+    ammonia : bool
+        Whether to assume this is ammonia or hydrogen. Default is False, which means hydrogen
 
     Returns
     -------
@@ -245,12 +247,18 @@ def get_native_hydrogen_sector_column(sector, df_replacements, ammonia=False):
         df_replacements.at[sector, "CO2"] = INDUSTRIAL_USE_2019 * np.mean(
             per_hydrogen_co2
         )
+    df_replacements.fillna(value=0, inplace=True)
 
-    # TODO make this better. For now 
+    # TODO make this better. For now
     # https://royalsociety.org/-/media/policy/projects/green-ammonia/green-ammonia-policy-briefing.pdf
     # Says ammonia production emissions are 90% hydrogen production emissions.
     if ammonia:
         df_replacements.at[sector, "CO2"] = df_replacements.at[sector, "CO2"] / 0.9
+        ammonia_sector = sector.replace("hydrogen", "ammonia")
+        df_replacements.drop(labels=[ammonia_sector], inplace=True)
+        df_replacements.rename(index={sector: ammonia_sector}, inplace=True)
+
+        print(df_replacements)
     return df_replacements
 
 
@@ -290,7 +298,10 @@ def get_sector_column(
     if sector.startswith("native_hydrogen"):
         return get_native_hydrogen_sector_column(sector, df_replacements)
     if sector.startswith("native_ammonia"):
-        return get_native_hydrogen_sector_column(sector.replace("ammonia", "hydrogen"), df_replacements, ammonia=True)
+        print("Ping")
+        return get_native_hydrogen_sector_column(
+            sector.replace("ammonia", "hydrogen"), df_replacements, ammonia=True
+        )
 
     for comp in complist:
         df_replacements[comp][sector] = get_sector_column_single_comp(
