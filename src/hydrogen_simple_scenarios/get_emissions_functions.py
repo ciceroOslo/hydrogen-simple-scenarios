@@ -5,13 +5,22 @@ Module to read and get emissions for compounds and scenario
 import numpy as np
 import pandas as pd
 
+from .chem_help_functions import calculate_mass_conversion_fraction
 from .scenario_info import INDUSTRIAL_USE_2019
 
 # FILEPATH = "/div/pdo/emissions/CEDS0521/TOTALS/"
 FILEPATH = "/mnt/c/Users/masan/Downloads/Input_for_scenarios/"
 
 # GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4":27.9,  "NMVOC": 10.9, "NOx": -(42+56)/2}
-GWP_dict = {"H2": 11.6, "CO2": 1, "CO": 2.3, "CH4": 27.9, "NMVOC": 10.5, "NOx": 0}
+GWP_dict = {
+    "H2": 11.6,
+    "CO2": 1,
+    "CO": 2.3,
+    "CH4": 27.9,
+    "NMVOC": 10.5,
+    "NOx": 0,
+    "N2O": 273,
+}
 GWP20_dict = {
     "H2": 37.3,
     "CO2": 1,
@@ -19,6 +28,7 @@ GWP20_dict = {
     "CH4": 81.2,
     "NMVOC": (38 + 35) / 2,
     "NOx": 0,
+    "N2O": 273,
 }
 # H2: Sand et al 2023, CO, NMVOC and NOx global summer/winter average from Aamaas 2016, CH4 AR6
 complist = GWP_dict.keys()
@@ -298,7 +308,6 @@ def get_sector_column(
     if sector.startswith("native_hydrogen"):
         return get_native_hydrogen_sector_column(sector, df_replacements)
     if sector.startswith("native_ammonia"):
-        print("Ping")
         return get_native_hydrogen_sector_column(
             sector.replace("ammonia", "hydrogen"), df_replacements, ammonia=True
         )
@@ -436,7 +445,7 @@ def get_sector_column_total(sectors, type_split="sector", just_CO2=False):
     raise TypeError("Sector must be str, list or dict")
 
 
-def add_leakage(df_repl, h2_total, leak_rate):
+def add_leakage(df_repl, h2_total, leak_rate, total_unit="H2"):
     """
     Add H2 leakage to sector
 
@@ -448,6 +457,8 @@ def add_leakage(df_repl, h2_total, leak_rate):
         Total Hydrogen needed to repl
     leak_rate : float
         Leak rate of hydrogen, should be in range 0-1
+    total_unit : str
+        Denoteing the component in which the total need is measured as mass of
 
     Returns
     -------
@@ -455,7 +466,19 @@ def add_leakage(df_repl, h2_total, leak_rate):
             Dataframe of emissions mitigated minus H2 emissions
     """
     df_with_leak = df_repl.copy()
-    df_with_leak["H2"] = df_with_leak["H2"] - leak_rate * h2_total
+    if isinstance(leak_rate, (float, int)):
+        df_with_leak["H2"] = df_with_leak[
+            "H2"
+        ] - leak_rate * h2_total * calculate_mass_conversion_fraction("H2", total_unit)
+    else:
+        for comp, leak_rate_here in leak_rate.items():
+            if comp in ["total", "name"]:
+                continue
+            df_with_leak[comp] = df_with_leak[
+                comp
+            ] - leak_rate_here * h2_total * calculate_mass_conversion_fraction(
+                "H2", total_unit
+            )
     return df_with_leak
 
 

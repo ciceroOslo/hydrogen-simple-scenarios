@@ -52,15 +52,15 @@ def test_prepare_emis_df():
 def test_get_sector_column():
     sector_column = get_emissions_functions.get_sector_column("Total")
     assert sorted(sector_column.columns) == sorted(
-        ["H2", "CO2", "CO", "CH4", "NMVOC", "NOx"]
+        ["H2", "CO2", "CO", "CH4", "NMVOC", "NOx", "N2O"]
     )
-    assert (sector_column.shape) == (1, 6)
+    assert (sector_column.shape) == (1, 7)
     print(sector_column)
     sector_column2 = get_emissions_functions.get_sector_column(
         "natural_gas", type_split="fuel"
     )
     assert sorted(sector_column2.columns) == sorted(
-        ["H2", "CO2", "CO", "CH4", "NMVOC", "NOx"]
+        ["H2", "CO2", "CO", "CH4", "NMVOC", "NOx", "N2O"]
     )
     assert np.all(sector_column2.values < sector_column.values)
 

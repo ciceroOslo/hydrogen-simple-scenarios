@@ -18,20 +18,22 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../", "src"))
 
 from hydrogen_simple_scenarios import single_year_numbers_check, scenario_info
 
+
 title_dict = {
     "international_shipping": "International Shipping",
+    "natural_gas_ammonia": "Natural gas",
+    "coal_ammonia": "Coal",
     "current_ammonia": "Ammonia feedstock",
     "total_ammonia": "Total energy",
 }
 
-# TODO: Production methods scale to ammonia rather than hydrogen
-
 def make_single_year_per_ammonia_gwp_benefit_comparison(
     star=False, just_CO2=False, gwp20=False
 ):
+    print("What")
     # Figure 1 (normal), S1 (just_CO2) or S2 (star):
     fig, axs = plt.subplots(
-        ncols=len(scenario_info.sector_info_ammonia), nrows=1, sharey=True, figsize=(16, 8)
+        ncols=len(scenario_info.sector_info_ammonia), nrows=1, sharey=True, figsize=(25, 8)
     )
     # fig.suptitle("Per kg nh3 CO2 equiv replacement benefit", fontsize=size)
     for i, sector in enumerate(scenario_info.sector_info_ammonia):
@@ -41,9 +43,9 @@ def make_single_year_per_ammonia_gwp_benefit_comparison(
                 sector, just_CO2=just_CO2, star=star, gwp20=gwp20
             ).reindex(["Green", "Blue_optimistic", "Blue_compliance"])
         )
-        gwp_benefits_per_nh3 = gwp_benefits_per_nh3.rename(
-            columns=lambda x: f"{int(x*100)}%"
-        )
+        print("I'm so confused")
+        print(gwp_benefits_per_nh3)
+        print("What now")
         print(gwp_benefits_per_nh3)
         # gwp_benefits_per_nh3_just_CO2 = single_year_numbers_check.get_gwp_values_per_hydrogen_used(sector, just_CO2=True)
         gwp_benefits_per_nh3.plot.bar(ax=axs[i], alpha=0.8, legend=(i >= 3))
@@ -91,9 +93,6 @@ for i, sector in enumerate(scenario_info.sector_info_ammonia):
     )
 
     print(benefit_loss_to_plot)
-    benefit_loss_to_plot = benefit_loss_to_plot.rename(
-        columns=lambda x: f"{int(x*100)}%"
-    )
     benefit_loss_to_plot.plot.bar(
         ax=axs[i],
         alpha=0.8,

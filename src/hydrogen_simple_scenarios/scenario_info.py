@@ -61,6 +61,7 @@ natural_gas_sectors = {
     "1B2b_Fugitive-NG-distr": [1, "sector"],
     "1B2b_Fugitive-NG-prod": [1, "sector"],
 }
+coal_sectors = {"brown_coal": [1, "fuel"], "hard_coal": [1, "fuel"]}
 total_sector = {
     "biomass": [1, "fuel"],
     "brown_coal": [1, "fuel"],
@@ -103,6 +104,15 @@ NH3_REPL_NEED_INT_SHIP = 11.5e3 * NH3_ENERGY_TO_MASS_CONV_FACTOR
 # 1 Mtoe = 0.041868 EJ
 NATURAL_GAS_ENERGY_DEMAND_2019 = 0.041868 * 3320
 
+# Coal energy demand 2019
+# 156.72 EJ 2019 * (1 - 1/7.5)
+# Total number from consumption here:
+# https://www.energyinst.org/__data/assets/pdf_file/0004/1055542/EI_Stat_Review_PDF_single_3.pdf
+# Factor to exclude coal coke, very rough using numbers from Table 1 here:
+# https://www.oecd.org/content/dam/oecd/en/publications/reports/2019/08/coal-information-2019_0f028ad4/4a69d8c8-en.pdf
+# 1 Mtoe = 0.041868 EJ
+COAL_ENERGY_DEMAND_2019 = 156.72 * (1 - 1 / 7.5)
+
 # Wikipedia https://en.wikipedia.org/wiki/World_energy_supply_and_consumption
 # Number seems to have come from
 # https://yearbook.enerdata.net/total-energy/world-consumption-statistics.html
@@ -118,17 +128,17 @@ INDUSTRIAL_USE_2019 = 69e3
 INDUSTRIAL_USE_2020_NH3 = 185e3
 
 sector_info = {
-    "steel": [steel_sectors, H2_REPL_NEED_TOTAL_STEEL, "hydrogen"],
+    "steel": [steel_sectors, H2_REPL_NEED_TOTAL_STEEL, "H2"],
     "natural_gas": [
         natural_gas_sectors,
         NATURAL_GAS_ENERGY_DEMAND_2019 * H2_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
-        "hydrogen",
+        "H2",
     ],
-    "current_hydrogen": ["native_hydrogen_mid", INDUSTRIAL_USE_2019, "hydrogen"],
+    "current_hydrogen": ["native_hydrogen_mid", INDUSTRIAL_USE_2019, "H2"],
     "total": [
         total_sector,
         TOTAL_ENERGY_DEMAND_2019 * H2_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
-        "hydrogen",
+        "H2",
     ],
 }
 
@@ -136,20 +146,39 @@ sector_info_ammonia = {
     "international_shipping": [
         international_shipping_sectors,
         NH3_REPL_NEED_INT_SHIP,
-        "ammonia",
+        "NH3",
     ],
-    "current_ammonia": ["native_ammonia_mid", INDUSTRIAL_USE_2020_NH3, "ammonia"],
+    "current_ammonia": ["native_ammonia_mid", INDUSTRIAL_USE_2020_NH3, "NH3"],
+    "natural_gas_ammonia": [
+        natural_gas_sectors,
+        NATURAL_GAS_ENERGY_DEMAND_2019 * NH3_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
+        "NH3",
+    ],
+    "coal_ammonia": [
+        coal_sectors,
+        NATURAL_GAS_ENERGY_DEMAND_2019 * NH3_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
+        "NH3",
+    ],
     "total_ammonia": [
         total_sector,
         TOTAL_ENERGY_DEMAND_2019 * NH3_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
-        "ammonia",
+        "NH3",
     ],
 }
 
 sector_info_all = {**sector_info, **sector_info_ammonia}
 
 
-leak_rates = [0, 0.01, 0.05, 0.1]
+leak_rates = {
+    "H2": [0, 0.01, 0.05, 0.1],
+    # "NH3":[0, 0.01, 0.05, 0.1],
+    "NH3": [
+        0,
+        {"total": 0.007, "H2": 0.002, "N2O": 0, "name": "HB-min"},
+        {"total": 0.044, "H2": 0.018, "N2O": 0.004, "name": "HB-mid"},
+        {"total": 0.09, "H2": 0.04, "N2O": 0.01, "name": "HB-max"},
+    ],
+}
 
 # TODO: Figure out how to add "1B2b_Fugitive-NG-prod" sector to
 # the blue production sectors...
@@ -171,12 +200,12 @@ def _rescale_dictionary_items(dictionary, scale_factor):
 # TODO: Add ammonia specific production methods
 
 prod_methods = {
-    "hydrogen": {
+    "H2": {
         "Blue_optimistic": blue_opt,
         "Blue_compliance": blue_pes,
         "Green": green,
     },
-    "ammonia": {
+    "NH3": {
         "Blue_optimistic": _rescale_dictionary_items(
             blue_opt, (INDUSTRIAL_USE_2019 * 0.9) / INDUSTRIAL_USE_2020_NH3
         ),
