@@ -94,6 +94,10 @@ H2_ENERGY_TO_MASS_CONV_FACTOR = 277777777777.78 / 33.3 * 1e-9
 # Ammonia has 18.6 MJ per kg (https://www.bv.com/perspectives/ammonia-fuel-vs-hydrogen-carrier/)
 NH3_ENERGY_TO_MASS_CONV_FACTOR = 1 / (18.6e-12) * 1e-9
 
+# Energy need per tonne of NH3 (https://doi.org/10.1039/C9EE02873K):
+# Electrolysis 7.6-8.8 MWh/t_NH3
+# SMR: 9.5-11 MWh /t_NH3
+
 # TODO: Better number for this
 # For now numbers from figure on page 94 of
 # https://iea.blob.core.windows.net/assets/4ad26550-05c4-4495-9891-98e588cd0be8/NetZeroRoadmap_AGlobalPathwaytoKeepthe1.5CGoalinReach-2023Update.pdf
@@ -156,7 +160,7 @@ sector_info_ammonia = {
     ],
     "coal_ammonia": [
         coal_sectors,
-        NATURAL_GAS_ENERGY_DEMAND_2019 * NH3_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
+        COAL_ENERGY_DEMAND_2019  * NH3_ENERGY_TO_MASS_CONV_FACTOR * 1e3,
         "NH3",
     ],
     "total_ammonia": [
@@ -169,16 +173,32 @@ sector_info_ammonia = {
 sector_info_all = {**sector_info, **sector_info_ammonia}
 
 
-leak_rates = {
-    "H2": [0, 0.01, 0.05, 0.1],
-    # "NH3":[0, 0.01, 0.05, 0.1],
-    "NH3": [
+HB_leak_rates = [
         0,
         {"total": 0.007, "H2": 0.002, "N2O": 0, "name": "HB-min"},
         {"total": 0.044, "H2": 0.018, "N2O": 0.004, "name": "HB-mid"},
         {"total": 0.09, "H2": 0.04, "N2O": 0.01, "name": "HB-max"},
-    ],
+    ]
+HB_crack_leak_rates = [
+        0,
+        {"total": 0.012, "H2": 0.007, "name": "HB-min"},
+        {"total": 0.051, "H2": 0.033, "name": "HB-mid"},
+        {"total": 0.105, "H2": 0.07, "name": "HB-crack-max"},
+    ]
+nh3_direct_leak_rates = [
+        0,
+        {"total": 0.005, "name": "direct-min"},
+        {"total": 0.026, "N2O": 0.004, "name": "direct-mid"},
+        {"total": 0.05, "N2O": 0.01, "name": "direct-max"},
+    ]
+
+leak_rates = {
+    "H2": [0, 0.01, 0.05, 0.1],
+    # "NH3":[0, 0.01, 0.05, 0.1],
+    #"NH3": nh3_direct_leak_rates,
+    "NH3": HB_leak_rates,
 }
+
 
 # TODO: Figure out how to add "1B2b_Fugitive-NG-prod" sector to
 # the blue production sectors...

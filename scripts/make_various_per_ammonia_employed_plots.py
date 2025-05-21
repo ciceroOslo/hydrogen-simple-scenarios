@@ -27,6 +27,11 @@ title_dict = {
     "total_ammonia": "Total energy",
 }
 
+substitution_sectors = ["coal_ammonia", "natural_gas_ammonia", "total_ammonia"]
+print(scenario_info.prod_methods)
+
+energy_efficiencies = [0.6, 0.75, 0.8, 0.9]
+#sys.exit(4)
 def make_single_year_per_ammonia_gwp_benefit_comparison(
     star=False, just_CO2=False, gwp20=False
 ):
@@ -43,12 +48,14 @@ def make_single_year_per_ammonia_gwp_benefit_comparison(
                 sector, just_CO2=just_CO2, star=star, gwp20=gwp20
             ).reindex(["Green", "Blue_optimistic", "Blue_compliance"])
         )
+
         print("I'm so confused")
         print(gwp_benefits_per_nh3)
+        #sys.exit(4)
         print("What now")
         print(gwp_benefits_per_nh3)
         # gwp_benefits_per_nh3_just_CO2 = single_year_numbers_check.get_gwp_values_per_hydrogen_used(sector, just_CO2=True)
-        gwp_benefits_per_nh3.plot.bar(ax=axs[i], alpha=0.8, legend=(i >= 3))
+        gwp_benefits_per_nh3.plot.bar(ax=axs[i], alpha=0.8, legend=(i >= 4))
         # gwp_benefits_per_nh3_just_CO2.plot.bar(ax = axs[i], alpha=0.2, hatch=".")
         axs[i].tick_params(axis="x", labelrotation=45)
         axs[i].set_title(title_dict[sector], fontsize=size * 0.9, fontweight="bold")
@@ -72,14 +79,73 @@ def make_single_year_per_ammonia_gwp_benefit_comparison(
         fname_suffix = f"{fname_suffix}_just_co2"
     if gwp20:
         fname_suffix = f"{fname_suffix}_gwp20"
-    fig.savefig(f"per_nh3_benefits{fname_suffix}.png")
+    fig.savefig(f"per_nh3-hb_benefits{fname_suffix}.png")
+
+def make_efficiency_loss_plots(
+    star=False, just_CO2=False, gwp20=False
+):
+    print("What")
+    # Figure 1 (normal), S1 (just_CO2) or S2 (star):
+    fig, axs = plt.subplots(
+        ncols=1, nrows=3, sharey=True, figsize=(25, 24)
+    )
+    #sys.exit(4)
+    eqvi_str = ""
+    if not just_CO2:
+        eqvi_str = " equivalent"
+    # fig.suptitle("Per kg nh3 CO2 equiv replacement benefit", fontsize=size)
+    for j,alt_sector in enumerate(substitution_sectors):
+        orig_sector= "coal_ammonia"
+        print(alt_sector)
+        gwp_inefficiency_loss = (
+            single_year_numbers_check.get_energy_loss_replacement_sector(
+                orig_sector, alt_sector, energy_efficiencies, just_CO2=just_CO2, star=star, gwp20=gwp20
+            )
+        )
+        print("I'm so confused")
+        print(gwp_inefficiency_loss)
+        print("What now")
+        print(gwp_inefficiency_loss)
+        # gwp_benefits_per_nh3_just_CO2 = single_year_numbers_check.get_gwp_values_per_hydrogen_used(sector, just_CO2=True)
+        gwp_inefficiency_loss.plot.bar(ax=axs[j], alpha=0.8, legend=True)
+
+        # gwp_benefits_per_nh3_just_CO2.plot.bar(ax = axs[i], alpha=0.2, hatch=".")
+        axs[j].tick_params(axis="x", labelrotation=45, labelsize=size*1.5)
+        axs[j].tick_params(axis="y", labelsize=size*1.5)
+        axs[j].set_title(f"Energy loss to {title_dict[alt_sector]}", fontsize=size*2, fontweight="bold")
+        axs[j].set_title(f"{chr(j+97)})", fontsize=size, loc="left")
+        if star:
+            secax = axs[j].secondary_yaxis(
+                    "right", functions=(lambda x: x * 0.4, lambda x: x / 0.4)
+                )
+
+        axs[j].set_ylabel(f"CO2{eqvi_str} per unit NH3")
+        if star:
+            secax.set_ylabel("Pot mitigated warming (mK per GT NH3)")
+        axs[j].legend(fontsize=size*1.5)
+    fig.tight_layout()
+    fname_suffix = ""
+    if star:
+        fname_suffix = f"{fname_suffix}_gwpstar"
+    if just_CO2:
+        fname_suffix = f"{fname_suffix}_just_co2"
+    if gwp20:
+        fname_suffix = f"{fname_suffix}_gwp20"
+    fig.savefig(f"per_nh3-hb_efficiency_loss{fname_suffix}.png")
 
 
 # Making figures 1, S1 and S2:
 make_single_year_per_ammonia_gwp_benefit_comparison()
-make_single_year_per_ammonia_gwp_benefit_comparison(star=True)
-make_single_year_per_ammonia_gwp_benefit_comparison(just_CO2=True)
-make_single_year_per_ammonia_gwp_benefit_comparison(gwp20=True)
+#make_single_year_per_ammonia_gwp_benefit_comparison(star=True)
+#make_single_year_per_ammonia_gwp_benefit_comparison(just_CO2=True)
+#make_single_year_per_ammonia_gwp_benefit_comparison(gwp20=True)
+
+# Making efficiency loss figures
+make_efficiency_loss_plots()
+make_efficiency_loss_plots(star=True)
+make_efficiency_loss_plots(just_CO2=True)
+make_efficiency_loss_plots(gwp20=True)
+
 
 # Figure 2
 fig, axs = plt.subplots(

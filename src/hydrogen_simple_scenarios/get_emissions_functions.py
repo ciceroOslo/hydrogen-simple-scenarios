@@ -313,7 +313,7 @@ def get_sector_column(
         )
 
     for comp in complist:
-        df_replacements[comp][sector] = get_sector_column_single_comp(
+        df_replacements.loc[sector,comp] = get_sector_column_single_comp(
             comp,
             sector,
             type_split=type_split,
